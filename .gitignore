@@ -1,0 +1,61 @@
+
+# macOS system files
+.DS_Store
+
+# Logs & temporaires
+*.log
+logs/
+tmp/
+
+# Fichiers d'environnement sensibles
+.env.local
+.env.development.local
+.env.production.local
+
+#Backend
+# Build Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Logs & caches
+backend/logs/
+backend/*.log
+
+# IntelliJ
+backend/.idea/
+backend/.classpath
+backend/.project
+backend/.settings/
+
+#Frontend
+# Node modules et builds
+frontend/node_modules/
+frontend/dist/
+
+# Fichiers d'environnement
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+
+# Cache de build
+frontend/.vite/
+frontend/.eslintcach
+
+#Infra
+# Données persistantes générées par Docker
+infra/**/volumes/
+infra/**/pgdata/
+infra/**/redis-data/
+infra/**/mosquitto/data/
+infra/**/mosquitto/log/
+infra/**/zookeeper/data/
+infra/**/zookeeper/logs/
+infra/**/kafka-logs/
+
+# Fichiers temporaires
+infra/**/tmp/
+infra/**/logs/
+
+#IDE
+# IntelliJ IDEA
+.idea/
