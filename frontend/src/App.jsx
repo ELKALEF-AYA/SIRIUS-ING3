@@ -1,24 +1,36 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
 
 function App() {
-  const [message, setMessage] = useState('Chargement...')
+    const [message, setMessage] = useState("Chargement...");
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch('http://localhost:8080/api/test')
-      .then(res => res.text())
-      .then(data => setMessage(data))
-      .catch(() => setMessage('Impossible de contacter le backend'))
-  }, [])
+    useEffect(() => {
+        // Appel du backend via Traefik
+        fetch("/app/api/hello")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+                return response.text();
+            })
+            .then((text) => setMessage(text))
+            .catch((err) => {
+                console.error(err);
+                setError("Erreur lors de l'appel à l'API");
+            });
+    }, []);
 
-  return (
-    <div style={{ fontFamily: 'system-ui', textAlign: 'center', marginTop: '60px' }}>
-      <h1>Frontend React connecté au Backend Spring Boot</h1>
-      <p style={{ fontSize: '18px', color: '#333' }}>{message}</p>
-    </div>
-  )
+    return (
+        <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+            <h1>Frontend React</h1>
+            <p><strong>Message du backend :</strong></p>
+            {error ? (
+                <p style={{ color: "red" }}>{error}</p>
+            ) : (
+                <p style={{ color: "green" }}>{message}</p>
+            )}
+        </div>
+    );
 }
 
-export default App
+export default App;
