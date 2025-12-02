@@ -3,6 +3,8 @@ package com.jsahome.auth.controller;
 import com.jsahome.auth.model.AccessLog;
 import com.jsahome.auth.service.AccessValidationService;
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth/access")
 @RequiredArgsConstructor
+@Getter
+@Setter
 @CrossOrigin(origins = "*")
 public class AccessValidationController {
 
