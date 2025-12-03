@@ -1,12 +1,2 @@
-com\jsahome\auth\model\AccessLog.class
-com\jsahome\auth\model\User$UserBuilder.class
-com\jsahome\JsahomeApplication.class
-com\jsahome\auth\controller\AccessValidationController.class
-com\jsahome\config\CorsConfig$1.class
-com\jsahome\config\CorsConfig.class
-com\jsahome\auth\repository\UserRepository.class
-com\jsahome\config\SecurityConfig.class
-com\jsahome\auth\repository\AccessLogRepository.class
 com\jsahome\auth\model\AccessLog$AccessLogBuilder.class
-com\jsahome\auth\service\AccessValidationService.class
-com\jsahome\auth\model\User.class
+com\jsahome\auth\model\AccessLog.class
