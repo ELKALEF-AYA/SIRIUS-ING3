@@ -1,80 +1,50 @@
 package com.jsahome.cache.service;
 
-
 import com.jsahome.cache.model.CacheEntry;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CacheService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CacheService.class);
-    private static final String CACHE_KEY_PREFIX = "access:";
-    private static final long CACHE_DURATION_MINUTES = 5;
 
     private final RedisTemplate<String, CacheEntry> redisTemplate;
 
-    /**
-     * Stocke une entrée de validation en cache
-     */
-    public void cacheAccess(String firstName, String lastName, boolean accessGranted, String reason) {
-        String cacheKey = CACHE_KEY_PREFIX + firstName + ":" + lastName;
+    private static final String PREFIX = "user:";
+    private static final long TTL_MINUTES = 10;
+
+    public void cacheUser(String firstName, String lastName, boolean access, String reason) {
+        String key = PREFIX + firstName + ":" + lastName;
 
         CacheEntry entry = CacheEntry.builder()
                 .firstName(firstName)
                 .lastName(lastName)
-                .accessGranted(accessGranted)
+                .accessGranted(access)
                 .reason(reason)
                 .cachedAt(LocalDateTime.now())
                 .build();
 
-        redisTemplate.opsForValue().set(cacheKey, entry, CACHE_DURATION_MINUTES, TimeUnit.MINUTES);
-        LOGGER.debug("Accès cachéisé pour {} {} : {}", firstName, lastName, accessGranted);
+        redisTemplate.opsForValue().set(key, entry, TTL_MINUTES, TimeUnit.MINUTES);
+
+        log.info(" User {} {} ajouté en cache Redis", firstName, lastName);
     }
 
-    /**
-     * Récupère une entrée du cache
-     */
-    public CacheEntry getFromCache(String firstName, String lastName) {
-        String cacheKey = CACHE_KEY_PREFIX + firstName + ":" + lastName;
-        CacheEntry entry = redisTemplate.opsForValue().get(cacheKey);
-
-        if (entry != null) {
-            LOGGER.debug("Accès trouvé en cache pour {} {}", firstName, lastName);
-        }
-
-        return entry;
+    public CacheEntry getUser(String firstName, String lastName) {
+        return redisTemplate.opsForValue().get(PREFIX + firstName + ":" + lastName);
     }
 
-    /**
-     * Vérifie si une entrée existe en cache
-     */
-    public boolean isCached(String firstName, String lastName) {
-        String cacheKey = CACHE_KEY_PREFIX + firstName + ":" + lastName;
-        Boolean exists = redisTemplate.hasKey(cacheKey);
-        return exists != null && exists;
+    public boolean exists(String firstName, String lastName) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(PREFIX + firstName + ":" + lastName));
     }
-
-    /**
-     * Supprime une entrée du cache
-     */
-    public void invalidateCache(String firstName, String lastName) {
-        String cacheKey = CACHE_KEY_PREFIX + firstName + ":" + lastName;
-        redisTemplate.delete(cacheKey);
-        LOGGER.debug("Cache invalidé pour {} {}", firstName, lastName);
-    }
-
-    /**
-     * Vide tout le cache
-     */
-    public void clearAllCache() {
+    public void clearAll() {
         redisTemplate.getConnectionFactory().getConnection().flushAll();
-        LOGGER.info("Tout le cache a été vidé");
+        log.warn(" Tout le cache Redis a été vidé !");
     }
+
 }

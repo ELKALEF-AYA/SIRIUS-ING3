@@ -5,34 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e67f9e4-cf1c-42fe-aa50-b2da0326e595" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/controller/AccessValidationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/controller/AccessValidationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/service/AccessValidationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/service/AccessValidationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/JsahomeApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/controller/AccessValidationController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/User$UserBuilder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/repository/AccessLogRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/repository/UserRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/service/AccessValidationService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/config/CorsConfig$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/config/CorsConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/config/SecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/jsahomeApp-1.0.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/jsahomeApp-1.0.0.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/service/CacheService.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/service/CacheService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,27 +42,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;21&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/aya40/SIRIUS-ING3/frontend/src/components&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "dev",
+    "jdk.selected.JAVA_MODULE": "21",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/aya40/SIRIUS-ING3/frontend/src/components",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\aya40\SIRIUS-ING3\frontend\src\components" />
@@ -102,7 +77,7 @@
       <recent name="C:\Users\aya40\SIRIUS-ING3\jsaHome" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.JsaHomeApplication">
+  <component name="RunManager">
     <configuration default="true" type="DjangoTestsConfigurationType">
       <module name="SIRIUS-ING3" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -141,16 +116,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <list>
-      <item itemvalue="HTTP Request.generated-requests | #2" />
-      <item itemvalue="Spring Boot.Auth2Application" />
-      <item itemvalue="Spring Boot.JsaHomeApplication" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="HTTP Request.generated-requests | #2" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
