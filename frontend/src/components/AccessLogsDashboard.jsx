@@ -1,152 +1,133 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import '../styles/AccessLogsDashboard.css';
+import { useState, useEffect } from "react";
+import "./App.css";
 
-function AccessLogsDashboard() {
-    const [logs, setLogs] = useState([]);
-    const [grantedCount, setGrantedCount] = useState(0);
-    const [deniedCount, setDeniedCount] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [filterType, setFilterType] = useState('all');
+function App() {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState("");
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const API_URL = 'http://localhost:8081/api/auth/access';
+    const API_URL = 'http://172.31.253.250:8081/api/auth/access';
 
-    const fetchLogs = async () => {
+
+    // Charger l'historique au démarrage
+    useEffect(() => {
+        fetchHistory();
+    }, []);
+
+    const fetchHistory = async () => {
+        try {
+            const res = await fetch(`${API_URL}/logs`);
+            const data = await res.json();
+            setHistory(data.reverse());  // plus récent en haut
+        } catch (err) {
+            console.error("Erreur historique :", err);
+        }
+    };
+
+    const handleValidate = async (e) => {
+        e.preventDefault();
+
+        if (!firstName.trim() || !lastName.trim()) {
+            setMessage("Veuillez saisir le nom et le prénom.");
+            setMessageType("warning");
+            return;
+        }
+
         try {
             setLoading(true);
-            setError(null);
+            setMessage("");
 
-            // Fetch all logs
-            const allLogsRes = await axios.get(`${API_URL}/logs`);
-            setLogs(allLogsRes.data);
+            const res = await fetch(
+                `${API_URL}/validate?firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`
+            );
 
-            // Fetch granted count
-            const grantedRes = await axios.get(`${API_URL}/logs/granted`);
-            setGrantedCount(grantedRes.data.length);
+            const data = await res.json();
 
-            // Fetch denied count
-            const deniedRes = await axios.get(`${API_URL}/logs/denied`);
-            setDeniedCount(deniedRes.data.length);
+            if (data.accessGranted) {
+                setMessage("Accès autorisé ✔️");
+                setMessageType("success");
+            } else {
+                setMessage(`Accès refusé ❌ — ${data.reason}`);
+                setMessageType("error");
+            }
+
+            setFirstName("");
+            setLastName("");
+            setTimeout(fetchHistory, 500); // rafraîchir l'historique
         } catch (err) {
-            setError(`Failed to fetch logs: ${err.message}`);
+            setMessage("Erreur : " + err.message);
+            setMessageType("error");
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchLogs();
-        // Auto-refresh every 5 seconds
-        const interval = setInterval(fetchLogs, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const filteredLogs = filterType === 'all'
-        ? logs
-        : filterType === 'granted'
-            ? logs.filter(log => log.accessGranted)
-            : logs.filter(log => !log.accessGranted);
-
     return (
-        <div className="dashboard-container">
-            <div className="stats-grid">
-                <div className="stat-card total">
-                    <h3>Total Events</h3>
-                    <p className="stat-number">{logs.length}</p>
-                </div>
-                <div className="stat-card granted">
-                    <h3> Granted</h3>
-                    <p className="stat-number">{grantedCount}</p>
-                </div>
-                <div className="stat-card denied">
-                    <h3> Denied</h3>
-                    <p className="stat-number">{deniedCount}</p>
-                </div>
-                <div className="stat-card percentage">
-                    <h3>Success Rate</h3>
-                    <p className="stat-number">
-                        {logs.length > 0 ? ((grantedCount / logs.length) * 100).toFixed(1) : 0}%
-                    </p>
-                </div>
-            </div>
+        <div className="container">
 
-            <div className="logs-section">
-                <div className="logs-header">
-                    <h2> Access Logs</h2>
-                    <button className="refresh-btn" onClick={fetchLogs} disabled={loading}>
-                        {loading ? ' Loading...' : ' Refresh'}
-                    </button>
+            <h1>Contrôle d'accès JSA Home</h1>
+
+            {/* Formulaire */}
+            <form onSubmit={handleValidate} className="form">
+
+                <label>Prénom</label>
+                <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Ex : Aya"
+                    disabled={loading}
+                />
+
+                <label>Nom</label>
+                <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Ex : Elk"
+                    disabled={loading}
+                />
+
+                <button type="submit" disabled={loading}>
+                    {loading ? "Validation..." : "Valider"}
+                </button>
+            </form>
+
+            {/* Message retour */}
+            {message && (
+                <div className={`message ${messageType}`}>
+                    {message}
                 </div>
+            )}
 
-                {error && <div className="error-message">{error}</div>}
+            {/* Historique */}
+            <h2>Historique des accès</h2>
 
-                <div className="filter-buttons">
-                    <button
-                        className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
-                        onClick={() => setFilterType('all')}
-                    >
-                        All ({logs.length})
-                    </button>
-                    <button
-                        className={`filter-btn granted ${filterType === 'granted' ? 'active' : ''}`}
-                        onClick={() => setFilterType('granted')}
-                    >
-                        Granted ({grantedCount})
-                    </button>
-                    <button
-                        className={`filter-btn denied ${filterType === 'denied' ? 'active' : ''}`}
-                        onClick={() => setFilterType('denied')}
-                    >
-                        Denied ({deniedCount})
-                    </button>
-                </div>
-
-                {loading && filteredLogs.length === 0 ? (
-                    <div className="loading-state">
-                        <p>Loading access logs...</p>
-                    </div>
-                ) : filteredLogs.length === 0 ? (
-                    <div className="empty-state">
-                        <p>No access logs found</p>
-                    </div>
-                ) : (
-                    <div className="logs-table-wrapper">
-                        <table className="logs-table">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Reason</th>
-                                <th>Timestamp</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {filteredLogs.map((log) => (
-                                <tr key={log.id} className={log.accessGranted ? 'granted-row' : 'denied-row'}>
-                                    <td className="log-id">{log.id}</td>
-                                    <td className="log-name">
-                                        {log.firstName} {log.lastName}
-                                    </td>
-                                    <td className="log-status">
-                      <span className={`status-badge ${log.accessGranted ? 'granted' : 'denied'}`}>
-                        {log.accessGranted ? ' Granted' : ' Denied'}
-                      </span>
-                                    </td>
-                                    <td className="log-reason">{log.reason}</td>
-                                    <td className="log-timestamp">
-                                        {new Date(log.accessTimestamp).toLocaleString()}
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
+            {history.length === 0 ? (
+                <p>Aucun accès enregistré pour le moment.</p>
+            ) : (
+                <ul className="history">
+                    {history.map((item) => (
+                        <li
+                            key={item.id}
+                            className={item.accessGranted ? "ok" : "denied"}
+                        >
+                            <strong>{item.firstName} {item.lastName}</strong>
+                            {" — "}
+                            {item.accessGranted ? "Autorisé" : "Refusé"}
+                            {" — "}
+                            <em>{item.reason}</em>
+                            <br />
+                            <small>{new Date(item.accessTimestamp).toLocaleString()}</small>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 }
 
-export default AccessLogsDashboard;
+export default App;

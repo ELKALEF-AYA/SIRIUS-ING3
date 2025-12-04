@@ -5,32 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e67f9e4-cf1c-42fe-aa50-b2da0326e595" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/AccessLogsDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/AccessLogsDashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/PublishEventForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/PublishEventForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/JsahomeApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/JsahomeApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/controller/AccessValidationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/controller/AccessValidationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/model/AccessLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/model/AccessLog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/service/AccessValidationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/auth/service/AccessValidationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/controller/CacheController.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/controller/CacheController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/model/CacheEntry.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/model/CacheEntry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/cache/service/CacheService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/config/RedisConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/kafka/producer/AccessEventProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/kafka/producer/AccessEventProducer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jsaHome/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/JsahomeApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/controller/AccessValidationController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/User$UserBuilder.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/repository/AccessLogRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/repository/UserRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/service/AccessValidationService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/config/CorsConfig$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/config/CorsConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/config/SecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/jsahomeApp-1.0.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/jsahomeApp-1.0.0.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/jsaHome/target/maven-archiver/pom.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/AccessLog$AccessLogBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/AccessLog$AccessLogBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/AccessLog.class" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/classes/com/jsahome/auth/model/AccessLog.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/jsaHome/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
     </list>
@@ -180,5 +171,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/jsaHome/src/main/java/com/jsahome/kafka/consumer/AccessEventConsumer.java</url>
+          <line>9</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

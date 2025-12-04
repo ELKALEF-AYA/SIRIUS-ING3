@@ -13,7 +13,8 @@ function PublishEventForm() {
     const [message, setMessage] = useState(null);
     const [messageType, setMessageType] = useState('');
 
-    const API_URL = 'http://localhost:8081/api/auth/access';
+    const API_URL = 'http://172.31.253.250:8081/api/auth/access';
+
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
