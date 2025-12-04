@@ -9,7 +9,7 @@ function App() {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const API_URL = 'http://localhost:8081/api/auth/access';
+    const API_URL = 'auth/access';
 
     useEffect(() => {
         // Fetch history on load
