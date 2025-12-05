@@ -1,0 +1,8 @@
+{
+  "firstName": "Bob",
+  "lastName": "Johnson",
+  "reason": "Expired badge\"",
+  "accessGranted": false,
+  "message": "Événement d'accès publié avec succès",
+  "status": "success"
+}

@@ -1,0 +1,48 @@
+http:
+  routers:
+    # Backend Spring Boot
+    backend-router:
+      rule: "PathPrefix(`/app/api`)"
+      service: backend
+      entryPoints:
+        - web
+      middlewares:
+        - strip-app
+
+    # Frontend : route /front -> service frontend (on enlève /front avant d'envoyer à nginx)
+    frontend-router:
+      rule: "PathPrefix(`/front`)"
+      service: frontend
+      middlewares:
+        - strip-front
+      entryPoints:
+        - web
+
+    # Frontend : les assets générés par Vite ( /assets/... )
+    frontend-assets:
+      rule: "PathPrefix(`/assets`)"
+      service: frontend
+      entryPoints:
+        - web
+
+  middlewares:
+    strip-front:
+      stripPrefix:
+        prefixes:
+          - "/front"
+
+    strip-app:
+      stripPrefix:
+        prefixes:
+          - "/app"
+
+  services:
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://172.31.253.250:8081"  # backend Spring Boot
+
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:80"          # conteneur nginx du front
