@@ -16,15 +16,6 @@ function App() {
         fetchHistory();
     }, []);
 
-    const fetchHistory = async () => {
-        try {
-            const response = await fetch(`${API_URL}/logs`);
-            const data = await response.json();
-            setHistory(data);
-        } catch (err) {
-            console.error('Error fetching history:', err);
-        }
-    };
 
     const handleValidate = async (e) => {
         e.preventDefault();
