@@ -21,7 +21,12 @@ public class ChatService {
     }
 
 
-    public List<Message> getConversation(Long senderId, Long receiverId) {
+    public List<Message> getConversation(Long conversationId) {
+        return chatRepository.findByConversationId(conversationId);
+    }
+
+
+    public List<Message> getMessagesBetween(Long senderId, Long receiverId) {
         return chatRepository.findBySenderIdAndReceiverId(senderId, receiverId);
     }
 }
