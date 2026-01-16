@@ -29,6 +29,7 @@
 
     <modules>
         <module>authentification</module>
+        <module>jsaHome</module>
     </modules>
 
     <dependencyManagement>
