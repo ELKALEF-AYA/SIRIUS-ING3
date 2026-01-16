@@ -1,0 +1,14 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://172.31.249.236:5432/jsa_db
+    username: jsa
+    password: aya
+    driver-class-name: org.postgresql.Driver
+
+app:
+  jwt:
+    secret: "v9Qp2mL7xR4nK8tS1yC6hD3gF5jA0zW2"
+    ttlMinutes: 1440

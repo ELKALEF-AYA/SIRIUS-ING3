@@ -1,0 +1,95 @@
+# =========================
+# OS / Misc
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.tmp
+*.swp
+*.swo
+
+# =========================
+# IntelliJ / JetBrains
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+# JetBrains local cache files
+.idea_modules/
+
+# =========================
+# Maven / Java
+# =========================
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+dependency-reduced-pom.xml
+
+# =========================
+# Gradle
+# =========================
+.gradle/
+build/
+
+# =========================
+# Node / React
+# =========================
+node_modules/
+**/node_modules/
+dist/
+build/
+.vite/
+.next/
+.nuxt/
+.cache/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# =========================
+# Docker
+# =========================
+**/*.pid
+docker-compose.override.yml
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+
+# =========================
+# Misc IDE
+# =========================
+.vscode/
+*.sublime-project
+*.sublime-workspace
