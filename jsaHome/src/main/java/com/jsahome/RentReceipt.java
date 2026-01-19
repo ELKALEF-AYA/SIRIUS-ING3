@@ -1,4 +1,4 @@
-package src.main.java.com.jsahome;
+package com.jsahome;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,11 +1,9 @@
 server:
   port: 8082
-  servlet:
-    context-path: /api
 
 spring:
   application:
-    name: RentReceipt
+    name: rent-receipt
 
   # ===============================
   # PostgreSQL
@@ -26,18 +24,13 @@ spring:
         format_sql: true
 
   # ===============================
-  # Redis (Spring Boot 3)
+  # Redis
   # ===============================
   data:
     redis:
       host: 172.31.250.214
       port: 6379
       timeout: 2000
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
 
   # ===============================
   # Kafka
@@ -50,12 +43,17 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      group-id: access-validation-group
+      group-id: rent-receipt-group
       auto-offset-reset: earliest
-      max-poll-records: 100
-    listener:
-      concurrency: 3
-      type: batch
+
+# ===============================
+# MinIO
+# ===============================
+minio:
+  url: https://172.31.250.54:9000
+  access-key: admin
+  secret-key: admin123
+  bucket: quittances
 
 # ===============================
 # Logging
@@ -64,18 +62,3 @@ logging:
   level:
     root: INFO
     com.jsahome: DEBUG
-
-# ===============================
-# Application
-# ===============================
-app:
-  version: 1.0.0
-
-# ===============================
-# MinIO (HTTPS )
-# ===============================
-minio:
-  url: https://172.31.250.54:9000
-  access-key: admin
-  secret-key: admin123
-  bucket: quittances

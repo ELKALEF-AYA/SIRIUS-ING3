@@ -17,14 +17,12 @@ public class MinioStorageService {
 
     public MinioStorageService() {
         this.minioClient = MinioClient.builder()
-                .endpoint("https://172.31.250.54:9000") // HTTPS + certificat trusté JVM ✅
+                .endpoint("https://172.31.250.54:9000")
                 .credentials("admin", "admin123")
                 .build();
     }
 
-    /**
-     * Upload d’un fichier PDF dans MinIO
-     */
+
     public String uploadPdf(byte[] pdfBytes, String fileName) {
         try {
             minioClient.putObject(
@@ -49,9 +47,7 @@ public class MinioStorageService {
         }
     }
 
-    /**
-     * Génère une URL temporaire de téléchargement (presigned URL)
-     */
+
     public String generatePresignedUrl(String fileName) {
         try {
             return minioClient.getPresignedObjectUrl(

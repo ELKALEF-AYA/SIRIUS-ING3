@@ -22,14 +22,14 @@ public class PdfService {
 
             document.open();
 
-            // ===== TITRE =====
+
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
             Paragraph title = new Paragraph("QUITTANCE DE LOYER", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             title.setSpacingAfter(20);
             document.add(title);
 
-            // ===== INFOS GÉNÉRALES =====
+
             Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
             Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
 
@@ -42,13 +42,13 @@ public class PdfService {
             ));
             document.add(Chunk.NEWLINE);
 
-            // ===== PROPRIÉTAIRE (statique pour l’instant) =====
+
             document.add(new Paragraph("PROPRIÉTAIRE", labelFont));
             document.add(new Paragraph("Nom : JSA Home", valueFont));
             document.add(new Paragraph("Adresse : 10 rue de l’Immobilier, Paris", valueFont));
             document.add(Chunk.NEWLINE);
 
-            // ===== LOCATAIRE =====
+
             Locataire locataire = quittance.getLocataire();
             if (locataire != null) {
                 document.add(new Paragraph("LOCATAIRE", labelFont));
@@ -60,7 +60,7 @@ public class PdfService {
                 document.add(Chunk.NEWLINE);
             }
 
-            // ===== LOGEMENT =====
+
             Logement logement = quittance.getLogement();
             if (logement != null) {
                 document.add(new Paragraph("LOGEMENT", labelFont));
@@ -68,7 +68,7 @@ public class PdfService {
                 document.add(Chunk.NEWLINE);
             }
 
-            // ===== DÉTAIL DU PAIEMENT =====
+
             document.add(new Paragraph("DÉTAIL DU PAIEMENT", labelFont));
             document.add(new Paragraph(
                     "Loyer : " + logement.getLoyer() + " €",
@@ -85,7 +85,7 @@ public class PdfService {
 
             document.add(Chunk.NEWLINE);
 
-            // ===== TEXTE LÉGAL =====
+
             Paragraph legal = new Paragraph(
                     "Je soussigné, propriétaire du logement désigné ci-dessus, "
                             + "reconnais avoir reçu la somme indiquée au titre du paiement "
@@ -97,7 +97,7 @@ public class PdfService {
             legal.setSpacingAfter(30);
             document.add(legal);
 
-            // ===== SIGNATURE =====
+
             document.add(new Paragraph("Signature du propriétaire :", labelFont));
             document.add(Chunk.NEWLINE);
             document.add(new Paragraph("JSA Home", valueFont));

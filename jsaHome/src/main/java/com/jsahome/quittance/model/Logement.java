@@ -15,7 +15,7 @@ public class Logement {
     private BigDecimal loyer;
     private BigDecimal charges;
 
-    // Getters & Setters
+
     public Long getId() {
         return id;
     }

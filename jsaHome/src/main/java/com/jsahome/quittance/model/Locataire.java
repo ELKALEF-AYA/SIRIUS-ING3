@@ -19,7 +19,7 @@ public class Locataire {
     @JoinColumn(name = "logement_id")
     private Logement logement;
 
-    // ===== Getters & Setters =====
+
 
     public Long getId() {
         return id;
