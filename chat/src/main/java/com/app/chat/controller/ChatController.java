@@ -18,24 +18,26 @@ public class ChatController {
     }
 
     /**
-     * Receive the message send from  front via /app/chat.send
+     * Receive a STOMP message from the front via /app/chat.send
      */
     @MessageMapping("/chat.send")
     public void sendMessage(Message message) {
 
-
         chatService.saveMessage(message);
-
 
         String destination;
 
-
         if ("CLIENT".equalsIgnoreCase(message.getSenderType())) {
+
             destination = "/topic/agent/" + message.getReceiverId();
         }
+        else if ("AGENT".equalsIgnoreCase(message.getSenderType())) {
 
-        else {
             destination = "/topic/client/" + message.getReceiverId();
+        }
+        else {
+            System.err.println("Invalid senderType: " + message.getSenderType());
+            return;
         }
 
 
