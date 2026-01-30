@@ -29,7 +29,8 @@
 
     <modules>
         <module>authentification</module>
-        <module>jsaHome</module>
+        <module>rent-receipt</module>
+        <module>messaging</module>
     </modules>
 
     <dependencyManagement>

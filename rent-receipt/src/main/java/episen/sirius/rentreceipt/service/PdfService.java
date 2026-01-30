@@ -1,0 +1,113 @@
+package episen.sirius.rentreceipt.service;
+
+import episen.sirius.rentreceipt.model.RentReceipt;
+import episen.sirius.rentreceipt.model.Locataire;
+import episen.sirius.rentreceipt.model.Logement;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfWriter;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.time.format.DateTimeFormatter;
+
+@Service
+public class PdfService {
+
+    public byte[] genererPdf(RentReceipt rentReceipt) {
+
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, out);
+
+            document.open();
+
+
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+            Paragraph title = new Paragraph("QUITTANCE DE LOYER", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+
+
+            Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
+            Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            document.add(new Paragraph("Période : " + rentReceipt.getPeriode(), valueFont));
+            document.add(new Paragraph(
+                    "Date d’émission : " + rentReceipt.getCreatedAt().format(formatter),
+                    valueFont
+            ));
+            document.add(Chunk.NEWLINE);
+
+
+            document.add(new Paragraph("PROPRIÉTAIRE", labelFont));
+            document.add(new Paragraph("Nom : JSA Home", valueFont));
+            document.add(new Paragraph("Adresse : 10 rue de l’Immobilier, Paris", valueFont));
+            document.add(Chunk.NEWLINE);
+
+
+            Locataire locataire = rentReceipt.getLocataire();
+            if (locataire != null) {
+                document.add(new Paragraph("LOCATAIRE", labelFont));
+                document.add(new Paragraph(
+                        "Nom : " + locataire.getPrenom() + " " + locataire.getNom(),
+                        valueFont
+                ));
+                document.add(new Paragraph("Adresse : " + locataire.getAdresse(), valueFont));
+                document.add(Chunk.NEWLINE);
+            }
+
+
+            Logement logement = rentReceipt.getLogement();
+            if (logement != null) {
+                document.add(new Paragraph("LOGEMENT", labelFont));
+                document.add(new Paragraph("Adresse : " + logement.getAdresse(), valueFont));
+                document.add(Chunk.NEWLINE);
+            }
+
+
+            document.add(new Paragraph("DÉTAIL DU PAIEMENT", labelFont));
+            document.add(new Paragraph(
+                    "Loyer : " + logement.getLoyer() + " €",
+                    valueFont
+            ));
+            document.add(new Paragraph(
+                    "Charges : " + logement.getCharges() + " €",
+                    valueFont
+            ));
+            document.add(new Paragraph(
+                    "Total : " + rentReceipt.getMontant() + " €",
+                    labelFont
+            ));
+
+            document.add(Chunk.NEWLINE);
+
+
+            Paragraph legal = new Paragraph(
+                    "Je soussigné, propriétaire du logement désigné ci-dessus, "
+                            + "reconnais avoir reçu la somme indiquée au titre du paiement "
+                            + "du loyer pour la période mentionnée. "
+                            + "La présente quittance vaut preuve de paiement.",
+                    valueFont
+            );
+            legal.setSpacingBefore(20);
+            legal.setSpacingAfter(30);
+            document.add(legal);
+
+
+            document.add(new Paragraph("Signature du propriétaire :", labelFont));
+            document.add(Chunk.NEWLINE);
+            document.add(new Paragraph("JSA Home", valueFont));
+
+            document.close();
+
+            return out.toByteArray();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la génération du PDF", e);
+        }
+    }
+}
