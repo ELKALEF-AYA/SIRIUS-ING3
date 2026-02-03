@@ -23,11 +23,12 @@ public class AuthController {
         if (req == null || req.email() == null || req.password() == null) {
             return ResponseEntity.badRequest().build();
         }
-
         return repo.findByEmailAndPassword(req.email(), req.password())
                 .map(u -> {
                     String token = jwt.generateToken(u.id(), u.email(), u.role());
-                    return ResponseEntity.ok(new LoginResponse(token, u.role(), u.id(), u.email()));
+                    return ResponseEntity.ok(
+                            new LoginResponse(token, u.role(), u.id(), u.email(), u.firstName(), u.lastName())
+                    );
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
