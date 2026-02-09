@@ -3,5 +3,6 @@ server:
 
 services:
   authBaseUrl: "http://localhost:8081"
+  notificationBaseUrl: "http://localhost:8084"
   rentReceiptBaseUrl: http://localhost:8082
 

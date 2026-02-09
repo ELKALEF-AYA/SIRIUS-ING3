@@ -14,6 +14,6 @@ public class RentReceiptEventProducer {
     }
 
     public void sendQuittanceCreatedEvent(RentReceiptCreatedEvent event) {
-        kafkaTemplate.send("quittance-created", event);
+        kafkaTemplate.send("quittance-created", String.valueOf(event.getLocataireId()), event);
     }
 }
