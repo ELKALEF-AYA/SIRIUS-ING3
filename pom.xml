@@ -29,6 +29,8 @@
 
     <modules>
         <module>authentification</module>
+        <module>notification</module>
+        <module>backend-for-frontend</module>
         <module>rent-receipt</module>
         <module>messaging</module>
     </modules>
