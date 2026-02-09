@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -68,10 +69,51 @@ public class NotificationController {
     public List<NotificationDto> myNotifs(
             @RequestHeader(value = "Authorization", required = false) String authorization
     ) {
+        Long tenantId = resolveTenantIdFromJwt(authorization);
+
+        return notificationRepository.findByTenantIdOrderByCreatedAtDesc(tenantId)
+                .stream()
+                .map(NotificationDto::from)
+                .toList();
+    }
+
+    // nombre de notifications non lues
+    @GetMapping("/me/unread-count")
+    public Map<String, Long> unreadCount(
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        Long tenantId = resolveTenantIdFromJwt(authorization);
+        long count = notificationRepository.countByTenantIdAndIsReadFalse(tenantId);
+        return Map.of("unreadCount", count);
+    }
+
+    // Marquer une notification comme lue
+    @PatchMapping("/{id}/read")
+    public NotificationDto markAsRead(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable("id") Long notificationId
+    ) {
+        Long tenantId = resolveTenantIdFromJwt(authorization);
+
+        var updated = notificationService.markAsRead(tenantId, notificationId);
+        return NotificationDto.from(updated);
+    }
+
+    // Tout marquer comme lu
+    @PatchMapping("/me/read-all")
+    public Map<String, Integer> markAllAsRead(
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        Long tenantId = resolveTenantIdFromJwt(authorization);
+
+        int updated = notificationService.markAllAsRead(tenantId);
+        return Map.of("updated", updated);
+    }
+
+    private Long resolveTenantIdFromJwt(String authorization) {
         String token = extractBearer(authorization);
         var jwtUser = jwtService.parse(token);
 
-        // Récupérer tenantId via users (userId vient du JWT)
         var user = userAuthRepository.findById(jwtUser.userId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED,
@@ -85,11 +127,7 @@ public class NotificationController {
                     "Aucun locataire (tenantId) n'est associé à cet utilisateur."
             );
         }
-
-        return notificationRepository.findByTenantIdOrderByCreatedAtDesc(tenantId)
-                .stream()
-                .map(NotificationDto::from)
-                .toList();
+        return tenantId;
     }
 
     private String extractBearer(String authorization) {

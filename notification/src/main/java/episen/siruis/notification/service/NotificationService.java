@@ -56,4 +56,37 @@ public class NotificationService {
 
         return saved;
     }
+
+    // Marquer une notification comme lue
+    @Transactional
+    public Notification markAsRead(Long tenantId, Long notificationId) {
+        if (tenantId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tenantId manquant.");
+        }
+        if (notificationId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L'identifiant de la notification est manquant.");
+        }
+
+        Notification notif = notificationRepository.findByIdAndTenantId(notificationId, tenantId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Notification introuvable."
+                ));
+
+        if (!notif.isRead()) {
+            notif.setRead(true);
+            notif = notificationRepository.save(notif);
+        }
+
+        return notif;
+    }
+
+    // Tout marquer comme lu pour ce tenantId
+    @Transactional
+    public int markAllAsRead(Long tenantId) {
+        if (tenantId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tenantId manquant.");
+        }
+        return notificationRepository.markAllAsRead(tenantId);
+    }
 }
