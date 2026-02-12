@@ -1,14 +1,14 @@
-import LogoutButton from "../auth/LogoutButton";
+import ChatInterface from "../chat/ChatInterface";
 
 export default function ClientHome() {
-    const email = localStorage.getItem("email");
-    const role = localStorage.getItem("role");
+    const userId = localStorage.getItem("userId") || "1";
+    const email = localStorage.getItem("email") || "Client";
 
     return (
-        <div style={{ padding: 16 }}>
-            <h2>Espace Client</h2>
-            <p>Connecté : {email} ({role})</p>
-            <LogoutButton />
-        </div>
+        <ChatInterface
+            userType="CLIENT"
+            userId={parseInt(userId)}
+            userName={email}
+        />
     );
 }

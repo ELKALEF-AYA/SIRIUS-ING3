@@ -1,14 +1,14 @@
-import LogoutButton from "../auth/LogoutButton";
+import ChatInterface from "../chat/ChatInterface";
 
 export default function AgentHome() {
-    const email = localStorage.getItem("email");
-    const role = localStorage.getItem("role");
+    const userId = localStorage.getItem("userId") || "1";
+    const email = localStorage.getItem("email") || "Agent";
 
     return (
-        <div style={{ padding: 16 }}>
-            <h2>Agent Dashboard</h2>
-            <p>Connecté : {email} ({role})</p>
-            <LogoutButton />
-        </div>
+        <ChatInterface
+            userType="AGENT"
+            userId={parseInt(userId)}
+            userName={email}
+        />
     );
 }
