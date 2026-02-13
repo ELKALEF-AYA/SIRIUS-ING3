@@ -1,53 +1,50 @@
 package episen.sirius.messaging.kafka.model;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 public class RentReceiptCreatedEvent {
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
 
-    private Long quittanceId;
-    private Long locataireId;
-    private String periode;
-    private BigDecimal montant;
+
+    private String eventId;
+    private String eventType;
+
+
+    private ReceiptEventData receipt;
+    private Tenant tenant;
+    private Property property;
 
     public RentReceiptCreatedEvent() {
     }
 
-    public RentReceiptCreatedEvent(Long quittanceId, Long locataireId, String periode, BigDecimal montant) {
-        this.quittanceId = quittanceId;
-        this.locataireId = locataireId;
-        this.periode = periode;
-        this.montant = montant;
+    public RentReceiptCreatedEvent(String eventId,
+                                   String eventType,
+                                   LocalDateTime timestamp,
+                                   ReceiptEventData receipt,
+                                   Tenant tenant,
+                                   Property property) {
+        this.eventId = eventId;
+        this.eventType = eventType;
+        this.timestamp = timestamp;
+        this.receipt = receipt;
+        this.tenant = tenant;
+        this.property = property;
     }
 
-    public Long getQuittanceId() {
-        return quittanceId;
-    }
+    public String getEventId() { return eventId; }
+    public String getEventType() { return eventType; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public ReceiptEventData getReceipt() { return receipt; }
+    public Tenant getTenant() { return tenant; }
+    public Property getProperty() { return property; }
 
-    public void setQuittanceId(Long quittanceId) {
-        this.quittanceId = quittanceId;
-    }
-
-    public Long getLocataireId() {
-        return locataireId;
-    }
-
-    public void setLocataireId(Long locataireId) {
-        this.locataireId = locataireId;
-    }
-
-    public String getPeriode() {
-        return periode;
-    }
-
-    public void setPeriode(String periode) {
-        this.periode = periode;
-    }
-
-    public BigDecimal getMontant() {
-        return montant;
-    }
-
-    public void setMontant(BigDecimal montant) {
-        this.montant = montant;
-    }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public void setReceipt(ReceiptEventData receipt) { this.receipt = receipt; }
+    public void setTenant(Tenant tenant) { this.tenant = tenant; }
+    public void setProperty(Property property) { this.property = property; }
 }

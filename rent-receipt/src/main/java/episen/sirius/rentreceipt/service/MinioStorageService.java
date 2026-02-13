@@ -13,7 +13,7 @@ import java.util.Map;
 public class MinioStorageService {
 
     private final MinioClient minioClient;
-    private static final String BUCKET_NAME = "quittances";
+    private static final String BUCKET_NAME = "rent-receipt";
 
     public MinioStorageService() {
         this.minioClient = MinioClient.builder()
@@ -21,7 +21,6 @@ public class MinioStorageService {
                 .credentials("admin", "admin123")
                 .build();
     }
-
 
     public String uploadPdf(byte[] pdfBytes, String fileName) {
         try {
@@ -37,11 +36,12 @@ public class MinioStorageService {
                             .contentType("application/pdf")
                             .build()
             );
+
             return fileName;
 
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Erreur lors de l’upload du PDF vers MinIO (bucket=" + BUCKET_NAME + ", file=" + fileName + ")",
+                    "Erreur lors de l’upload du PDF vers MinIO",
                     e
             );
         }
@@ -55,21 +55,22 @@ public class MinioStorageService {
                             .method(Method.GET)
                             .bucket(BUCKET_NAME)
                             .object(fileName)
-                            .expiry(5 * 60) // 5 minutes
+                            .expiry(5 * 60)
                             .extraQueryParams(
                                     Map.of(
                                             "response-content-disposition",
-                                            "attachment; filename=\"" + fileName + "\""
+                                            "attachment; filename=\"Rent_Receipt.pdf\""
                                     )
                             )
                             .build()
             );
-
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Erreur lors de la génération de l’URL de téléchargement pour " + fileName,
+                    "Erreur lors de la génération de l’URL de téléchargement",
                     e
             );
         }
     }
-}
+
+    }
+

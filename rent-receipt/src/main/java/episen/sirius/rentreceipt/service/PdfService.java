@@ -70,14 +70,17 @@ public class PdfService {
 
 
             document.add(new Paragraph("DÉTAIL DU PAIEMENT", labelFont));
+
             document.add(new Paragraph(
                     "Loyer : " + logement.getLoyer() + " €",
                     valueFont
             ));
+
             document.add(new Paragraph(
-                    "Charges : " + logement.getCharges() + " €",
+                    "Charges : " + rentReceipt.getCharges() + " €",
                     valueFont
             ));
+
             document.add(new Paragraph(
                     "Total : " + rentReceipt.getMontant() + " €",
                     labelFont
