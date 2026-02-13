@@ -4,6 +4,10 @@ import AgentHome from "./pages/AgentHome";
 import ClientHome from "./pages/ClientHome";
 import RequireAuth from "./auth/RequireAuth";
 import RequireRole from "./auth/RequireRole";
+import AgentRentReceipt from "./pages/AgentRentReceipt";
+import ClientRentReceipt from "./pages/ClientRentReceipt";
+
+
 
 export default function App() {
     return (
@@ -16,7 +20,7 @@ export default function App() {
                     element={
                         <RequireAuth>
                             <RequireRole role="AGENT">
-                                <AgentHome />
+                                <AgentRentReceipt />
                             </RequireRole>
                         </RequireAuth>
                     }
@@ -27,7 +31,7 @@ export default function App() {
                     element={
                         <RequireAuth>
                             <RequireRole role="CLIENT">
-                                <ClientHome />
+                                <ClientRentReceipt />
                             </RequireRole>
                         </RequireAuth>
                     }
