@@ -21,8 +21,10 @@ export default function Login() {
 
             if (res.data.role === "AGENT") navigate("/agent");
             else navigate("/client");
-        } catch (e) {
-            setErr("Email ou mot de passe incorrect.");
+        } catch (err) {
+            const status = err?.response?.status;
+            if (status === 401) setErr("Email ou mot de passe incorrect.");
+            else setErr("Erreur technique.");
         } finally {
             setLoading(false);
         }

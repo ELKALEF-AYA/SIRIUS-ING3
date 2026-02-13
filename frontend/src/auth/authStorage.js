@@ -3,6 +3,8 @@ export function saveAuth(data) {
     localStorage.setItem("role", data.role);
     localStorage.setItem("userId", String(data.userId));
     localStorage.setItem("email", data.email);
+    localStorage.setItem("firstName", data.firstName ?? "");
+    localStorage.setItem("lastName", data.lastName ?? "");
 }
 
 export function clearAuth() {
@@ -10,6 +12,8 @@ export function clearAuth() {
     localStorage.removeItem("role");
     localStorage.removeItem("userId");
     localStorage.removeItem("email");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
 }
 
 export function isLoggedIn() {
@@ -18,4 +22,9 @@ export function isLoggedIn() {
 
 export function getRole() {
     return localStorage.getItem("role");
+}
+export function getFullName() {
+    const first = localStorage.getItem("firstName") || "";
+    const last = localStorage.getItem("lastName") || "";
+    return `${first} ${last}`.trim();
 }
