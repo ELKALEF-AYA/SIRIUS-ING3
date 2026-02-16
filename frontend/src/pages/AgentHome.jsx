@@ -22,7 +22,7 @@ export default function AgentHome() {
             >
                 <div>
                     <h2 style={{ margin: 0 }}>Agent Dashboard</h2>
-                    <p style={{ margin: "6px 0 0" }}>Connecté : {email}</p>
+                    <p style={{ margin: "6px 0 0" }}>Connecté : Agent</p>
                 </div>
                 <LogoutButton />
             </div>

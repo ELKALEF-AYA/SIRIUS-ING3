@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
 
-/* ===== Icône PDF codée ===== */
 const PdfIcon = () => (
   <svg
     width="16"
@@ -40,7 +39,7 @@ export default function ClientRentReceipt() {
 
 
   useEffect(() => {
-    const locataireId = localStorage.getItem("userId");
+    const locataireId = localStorage.getItem("tenantId");
 
     api
       .get(`/rent-receipt/client/${locataireId}`)
@@ -77,9 +76,6 @@ export default function ClientRentReceipt() {
       .finally(() => setLoadingId(null));
   };
 
-
-
-
   return (
     <div className="section">
       <h2 className="section-title">Mes quittances</h2>
@@ -92,7 +88,7 @@ export default function ClientRentReceipt() {
 
       {!error && quittances.length === 0 && (
         <div className="empty-state">
-          📄 Aucune quittance disponible pour le moment
+          Aucune quittance disponible pour le moment
         </div>
       )}
 
