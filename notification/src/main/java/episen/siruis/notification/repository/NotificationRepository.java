@@ -11,13 +11,13 @@ import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByTenantIdOrderByCreatedAtDesc(Long tenantId);
+    List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    long countByTenantIdAndIsReadFalse(Long tenantId);
+    long countByUserIdAndIsReadFalse(Long userId);
 
-    Optional<Notification> findByIdAndTenantId(Long id, Long tenantId);
+    Optional<Notification> findByIdAndUserId(Long id, Long userId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("update Notification n set n.isRead = true where n.tenantId = :tenantId and n.isRead = false")
-    int markAllAsRead(@Param("tenantId") Long tenantId);
+    @Query("update Notification n set n.isRead = true where n.userId = :userId and n.isRead = false")
+    int markAllAsReadByUser(@Param("userId") Long userId);
 }
