@@ -65,7 +65,6 @@ export default function ChatInterface({ userType, userId, userName }) {
                 ]
                 : [
                     { id: 1, name: 'Agent Support', lastMessage: '', unreadCount: 0 },
-                    { id: 2, name: 'Agent Ventes', lastMessage: '', unreadCount: 0 },
                 ];
         setConversations(dummyConversations);
     }, [userType]);
