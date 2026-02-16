@@ -1,6 +1,12 @@
 import './ConversationList.css';
 
-export default function ConversationList({ conversations, selectedConversation, onSelectConversation, userType }) {
+export default function ConversationList({
+                                             conversations,
+                                             selectedConversation,
+                                             onSelectConversation,
+                                             userType,
+                                             isLoading
+                                         }) {
     return (
         <div className="conversation-list">
             <div className="conversation-header">
@@ -8,7 +14,11 @@ export default function ConversationList({ conversations, selectedConversation, 
                 <span className="conversation-count">{conversations.length}</span>
             </div>
             <div className="conversations">
-                {conversations.length === 0 ? (
+                {isLoading ? (
+                    <div className="loading">
+                        <p>Chargement des conversations...</p>
+                    </div>
+                ) : conversations.length === 0 ? (
                     <div className="empty-conversations">
                         <p>Aucune conversation</p>
                     </div>
