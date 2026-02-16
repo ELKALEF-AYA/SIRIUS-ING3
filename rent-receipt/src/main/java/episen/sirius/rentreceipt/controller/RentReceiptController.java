@@ -1,14 +1,17 @@
 package episen.sirius.rentreceipt.controller;
+import java.math.BigDecimal;
+import java.util.List;
 
 import episen.sirius.rentreceipt.model.RentReceipt;
 import episen.sirius.rentreceipt.service.RentReceiptService;
 import episen.sirius.rentreceipt.service.MinioStorageService;
 import org.springframework.http.ResponseEntity;
+import episen.sirius.rentreceipt.dto.RentReceiptPreviewDTO;
 
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/quittances")
+@RequestMapping("/rent-receipt")
 public class RentReceiptController {
 
     private final RentReceiptService rentReceiptService;
@@ -25,28 +28,48 @@ public class RentReceiptController {
     @PostMapping("/generate")
     public RentReceipt creerQuittance(
             @RequestParam("locataireId") Long locataireId,
-            @RequestParam("periode") String periode
+            @RequestParam("periode") String periode,
+            @RequestParam("charges") BigDecimal charges
     ) {
-        return rentReceiptService.creerQuittance(locataireId, periode);
+        return rentReceiptService.creerQuittance(locataireId, periode, charges);
     }
 
-    @GetMapping("/{id}/download")
-        public ResponseEntity<Void> downloadQuittance(@PathVariable("id") Long id) {
 
+    @PostMapping("/download")
+    public ResponseEntity<String> downloadQuittance(
+            @RequestParam("quittanceId") Long quittanceId
+    ) {
+        RentReceipt rentReceipt = rentReceiptService.findById(quittanceId);
 
-            RentReceipt rentReceipt = rentReceiptService.findById(id);
         String presignedUrl =
-                minioStorageService.generatePresignedUrl(rentReceipt.getFilePath());
+                minioStorageService.generatePresignedUrl(
+                        rentReceipt.getFilePath()
+                );
 
-        return ResponseEntity
-                .status(302)
-                .header("Location", presignedUrl)
-                .build();
+        return ResponseEntity.ok(presignedUrl);
     }
+
+
     @GetMapping("/ping")
     public String ping() {
         return "OK";
     }
+    @GetMapping("/preview")
+    public RentReceiptPreviewDTO previewQuittance(
+            @RequestParam("locataireId") Long locataireId,
+            @RequestParam("periode") String periode,
+            @RequestParam("charges") BigDecimal charges
+    ) {
+        return rentReceiptService.previewQuittance(locataireId, periode, charges);
+    }
+
+    @GetMapping("/client/{locataireId}")
+    public List<RentReceipt> getQuittancesClient(
+            @PathVariable("locataireId") Long locataireId
+    ) {
+        return rentReceiptService.getQuittancesByLocataire(locataireId);
+    }
+
 
 }
 

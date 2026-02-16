@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "quittances")
+@Table(name = "rent_receipt")
 public class RentReceipt {
 
     @Id
@@ -16,6 +16,7 @@ public class RentReceipt {
     private String periode;
     private String filePath;
     private LocalDateTime createdAt;
+    private BigDecimal charges;
 
     @ManyToOne
     @JoinColumn(name = "locataire_id")
@@ -77,4 +78,12 @@ public class RentReceipt {
     public void setLogement(Logement logement) {
         this.logement = logement;
     }
+    public BigDecimal getCharges() {
+        return charges;
+    }
+
+    public void setCharges(BigDecimal charges) {
+        this.charges = charges;
+    }
+
 }
