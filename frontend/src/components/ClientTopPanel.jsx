@@ -19,7 +19,6 @@ export default function ClientTopPanel({ active, onChange }) {
         <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
             <TabButton id="rent" label="Rent receipt" />
             <TabButton id="chat" label="Chat" />
-            <TabButton id="notif" label="Notifications" />
         </div>
     );
 }
