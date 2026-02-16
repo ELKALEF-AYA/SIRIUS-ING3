@@ -73,15 +73,9 @@ export default function AgentDashboard() {
 
     return (
         <div className="page">
-            {/* HEADER */}
-            <div className="header">
-                <div>
-                    <h1>Agent Dashboard</h1>
-                    <div className="user">Connecté : agent@jsa.com</div>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <LogoutButton />
                 </div>
-                <LogoutButton />
-            </div>
-
             {/* FORM */}
             <div className="section">
                 <h2 className="section-title">Création et génération d’une quittance</h2>

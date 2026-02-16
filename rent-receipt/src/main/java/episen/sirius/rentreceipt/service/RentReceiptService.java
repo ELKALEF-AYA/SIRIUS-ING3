@@ -65,7 +65,6 @@ public class RentReceiptService {
 
         RentReceipt savedRentReceipt = rentReceiptRepository.save(rentReceipt);
 
-        // Génération PDF
         byte[] pdfBytes = pdfService.genererPdf(savedRentReceipt);
 
         String fileName = "Rent_Receipt_" + locataire.getId() + "_" + periode.replace("/", "_") + ".pdf";

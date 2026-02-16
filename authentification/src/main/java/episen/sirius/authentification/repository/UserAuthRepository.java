@@ -20,6 +20,7 @@ public class UserAuthRepository {
             u.id,
             u.email,
             u.role,
+            u.tenant_id,
             CASE
               WHEN u.role = 'CLIENT' THEN l.prenom
               ELSE ''
@@ -42,6 +43,7 @@ public class UserAuthRepository {
                         rs.getLong("id"),
                         rs.getString("email"),
                         rs.getString("role"),
+                        rs.getLong("tenant_id"),
                         rs.getString("first_name"),
                         rs.getString("last_name")
                 ),
@@ -51,5 +53,5 @@ public class UserAuthRepository {
         return rows.stream().findFirst();
     }
 
-    public record UserRow(Long id, String email, String role, String firstName, String lastName) {}
+    public record UserRow(Long id, String email, String role,Long tenantId, String firstName, String lastName) {}
 }

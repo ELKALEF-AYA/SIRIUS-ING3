@@ -27,7 +27,7 @@ public class AuthController {
                 .map(u -> {
                     String token = jwt.generateToken(u.id(), u.email(), u.role());
                     return ResponseEntity.ok(
-                            new LoginResponse(token, u.role(), u.id(), u.email(), u.firstName(), u.lastName())
+                            new LoginResponse(token, u.role(), u.id(),u.tenantId(),  u.email(), u.firstName(), u.lastName())
                     );
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
