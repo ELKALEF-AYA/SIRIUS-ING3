@@ -6,16 +6,23 @@ import MessageInput from './MessageInput';
 import ConversationList from './ConversationList';
 import './ChatInterface.css';
 
+const API_BASE_URL = 'http://localhost:8083/api/chat';
+const WS_URL = 'http://localhost:8083/ws';
+
 export default function ChatInterface({ userType, userId, userName }) {
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [isSending, setIsSending] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
+    const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const stompClientRef = useRef(null);
 
+
     useEffect(() => {
-        const socket = new SockJS('http://localhost:8081/ws');
+        console.log('Connecting to WebSocket...');
+        const socket = new SockJS(WS_URL);
         const stompClient = Stomp.over(socket);
 
         stompClient.connect(
@@ -29,13 +36,14 @@ export default function ChatInterface({ userType, userId, userName }) {
                         ? `/topic/agent/${userId}`
                         : `/topic/client/${userId}`;
 
+                console.log('Subscribing to topic:', topic);
                 stompClient.subscribe(topic, (message) => {
                     const receivedMessage = JSON.parse(message.body);
                     console.log('Message reçu:', receivedMessage);
 
                     setMessages((prev) => [...prev, receivedMessage]);
                     updateConversationLastMessage(
-                        receivedMessage.senderId,
+                        receivedMessage.conversationId,
                         receivedMessage.content
                     );
                 });
@@ -55,24 +63,71 @@ export default function ChatInterface({ userType, userId, userName }) {
         };
     }, [userType, userId]);
 
-    useEffect(() => {
-        const dummyConversations =
-            userType === 'AGENT'
-                ? [
-                    { id: 1, name: 'Client 1', lastMessage: '', unreadCount: 0 },
-                    { id: 2, name: 'Client 2', lastMessage: '', unreadCount: 2 },
-                    { id: 3, name: 'Client 3', lastMessage: '', unreadCount: 0 },
-                ]
-                : [
-                    { id: 1, name: 'Agent Support', lastMessage: '', unreadCount: 0 },
-                ];
-        setConversations(dummyConversations);
-    }, [userType]);
 
-    const handleSelectConversation = (conversation) => {
+    useEffect(() => {
+        fetchConversations();
+    }, [userId]);
+
+    const fetchConversations = async () => {
+        try {
+            setIsLoadingConversations(true);
+            console.log('Fetching conversations for userId:', userId);
+
+            const response = await fetch(`${API_BASE_URL}/conversations?userId=${userId}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Conversations reçues:', data);
+
+            const formattedConversations = data.map((conv) => ({
+                id: conv.id,
+                otherUserId: conv.otherUserId,
+                name: `User ${conv.otherUserId}`,
+                lastMessage: conv.lastMessage || 'Pas de messages',
+                lastMessageTime: conv.lastMessageTime,
+                unreadCount: conv.unreadCount || 0,
+            }));
+
+            setConversations(formattedConversations);
+        } catch (error) {
+            console.error('Erreur lors du fetch des conversations:', error);
+            setConversations([]);
+        } finally {
+            setIsLoadingConversations(false);
+        }
+    };
+
+
+    const handleSelectConversation = async (conversation) => {
+        console.log('Selection conversation:', conversation);
         setSelectedConversation(conversation);
         setMessages([]);
+        setIsLoadingMessages(true);
+
+        try {
+            console.log(`Fetching messages for conversationId ${conversation.id}`);
+            const response = await fetch(
+                `${API_BASE_URL}/conversations/${conversation.id}/messages?userId=${userId}`
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Messages reçus:', data);
+            setMessages(data);
+        } catch (error) {
+            console.error('Erreur lors du fetch des messages:', error);
+            setMessages([]);
+        } finally {
+            setIsLoadingMessages(false);
+        }
     };
+
 
     const handleSendMessage = (content) => {
         if (!selectedConversation || !stompClientRef.current) {
@@ -82,13 +137,14 @@ export default function ChatInterface({ userType, userId, userName }) {
 
         const message = {
             senderId: userId,
-            receiverId: selectedConversation.id,
+            receiverId: selectedConversation.otherUserId,
             senderType: userType,
             content: content,
             conversationId: selectedConversation.id,
             timestamp: new Date().toISOString(),
         };
 
+        console.log('Envoi du message:', message);
         setIsSending(true);
 
         stompClientRef.current.send('/app/chat.send', {}, JSON.stringify(message));
@@ -116,6 +172,7 @@ export default function ChatInterface({ userType, userId, userName }) {
                 selectedConversation={selectedConversation}
                 onSelectConversation={handleSelectConversation}
                 userType={userType}
+                isLoading={isLoadingConversations}
             />
 
             <div className="chat-main">
@@ -130,11 +187,17 @@ export default function ChatInterface({ userType, userId, userName }) {
                             </div>
                         </div>
 
-                        <ChatWindow
-                            messages={messages}
-                            currentUserId={userId}
-                            isSending={isSending}
-                        />
+                        {isLoadingMessages ? (
+                            <div className="loading">
+                                <p>Chargement des messages...</p>
+                            </div>
+                        ) : (
+                            <ChatWindow
+                                messages={messages}
+                                currentUserId={userId}
+                                isSending={isSending}
+                            />
+                        )}
 
                         <MessageInput
                             onSendMessage={handleSendMessage}
