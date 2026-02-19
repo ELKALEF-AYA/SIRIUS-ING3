@@ -1,8 +1,8 @@
 package com.app.chat.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,14 +13,17 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "conversation_id", nullable = false)
+    @JsonProperty("conversation")
     private Conversation conversation;
 
+    public Long getConversationId() {
+        return conversation != null ? conversation.getId() : null;
+    }
+
     private Long senderId;
-
     private Long receiverId;
-
     private String senderType;
 
     @Column(columnDefinition = "TEXT")
@@ -28,5 +31,6 @@ public class Message {
 
     private LocalDateTime timestamp = LocalDateTime.now();
 
+    @JsonProperty("isRead")
     private boolean isRead = false;
 }
