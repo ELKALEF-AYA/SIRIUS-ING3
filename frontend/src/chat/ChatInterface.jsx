@@ -9,47 +9,41 @@ import './ChatInterface.css';
 const API_BASE_URL = 'http://localhost:8083/api/chat';
 const WS_URL = 'http://localhost:8083/ws';
 
-export default function ChatInterface({ userType, userId }) {
-
+export default function ChatInterface({ userType, userId, userName }) {
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
-
-    const [clients, setClients] = useState([]);
-    const [selectedClient, setSelectedClient] = useState("");
-    const [showNewConversation, setShowNewConversation] = useState(false);
-
+    const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const stompClientRef = useRef(null);
 
 
-
     useEffect(() => {
+        console.log('Connecting to WebSocket...');
         const socket = new SockJS(WS_URL);
         const stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, () => {
-            setIsConnected(true);
+        stompClient.connect(
+            {},
+            () => {
+                console.log('✓ WebSocket connecté');
+                setIsConnected(true);
 
-            const topic = `/topic/user/${userId}`;
+                const topic =
+                    userType === 'AGENT'
+                        ? `/topic/agent/${userId}`
+                        : `/topic/client/${userId}`;
 
-            stompClient.subscribe(topic, (msg) => {
-                const receivedMessage = JSON.parse(msg.body);
+                console.log('Subscribing to topic:', topic);
+                stompClient.subscribe(topic, (message) => {
+                    const receivedMessage = JSON.parse(message.body);
+                    console.log('Message reçu:', receivedMessage);
 
-
-                if (selectedConversation &&
-                    selectedConversation.id === receivedMessage.conversation.id) {
-
-                    setMessages(prev => [...prev, receivedMessage]);
-
-                } else {
-
-                    setConversations(prev =>
-                        prev.map(c =>
-                            c.id === receivedMessage.conversation.id
-                                ? { ...c, unreadCount: (c.unreadCount || 0) + 1 }
-                                : c
-                        )
+                    setMessages((prev) => [...prev, receivedMessage]);
+                    updateConversationLastMessage(
+                        receivedMessage.conversationId,
+                        receivedMessage.content
                     );
                 }
 
@@ -94,94 +88,70 @@ export default function ChatInterface({ userType, userId }) {
 
 
 
+
     useEffect(() => {
         fetchConversations();
-    }, []);
+    }, [userId]);
 
     const fetchConversations = async () => {
-        const token = localStorage.getItem("accessToken");
+        try {
+            setIsLoadingConversations(true);
+            console.log('Fetching conversations for userId:', userId);
 
-        const response = await fetch(`${API_BASE_URL}/conversations`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+            const response = await fetch(`${API_BASE_URL}/conversations?userId=${userId}`);
 
-        if (!response.ok) return;
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
 
-        const data = await response.json();
-        setConversations(data);
+            const data = await response.json();
+            console.log('Conversations reçues:', data);
+
+            const formattedConversations = data.map((conv) => ({
+                id: conv.id,
+                otherUserId: conv.otherUserId,
+                name: `User ${conv.otherUserId}`,
+                lastMessage: conv.lastMessage || 'Pas de messages',
+                lastMessageTime: conv.lastMessageTime,
+                unreadCount: conv.unreadCount || 0,
+            }));
+
+            setConversations(formattedConversations);
+        } catch (error) {
+            console.error('Erreur lors du fetch des conversations:', error);
+            setConversations([]);
+        } finally {
+            setIsLoadingConversations(false);
+        }
     };
-
-
-
-    const fetchClients = async () => {
-        const token = localStorage.getItem("accessToken");
-
-        const response = await fetch(`${API_BASE_URL}/clients`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!response.ok) return;
-
-        const data = await response.json();
-        setClients(data);
-    };
-
 
 
     const handleSelectConversation = async (conversation) => {
+        console.log('Selection conversation:', conversation);
         setSelectedConversation(conversation);
+        setMessages([]);
+        setIsLoadingMessages(true);
 
-        const token = localStorage.getItem("accessToken");
+        try {
+            console.log(`Fetching messages for conversationId ${conversation.id}`);
+            const response = await fetch(
+                `${API_BASE_URL}/conversations/${conversation.id}/messages?userId=${userId}`
+            );
 
-        const response = await fetch(
-            `${API_BASE_URL}/conversations/${conversation.id}/messages`,
-            { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-
-        if (!response.ok) return;
-
-        const data = await response.json();
-        setMessages(data);
-
-        setConversations(prev =>
-            prev.map(c =>
-                c.id === conversation.id
-                    ? { ...c, unreadCount: 0 }
-                    : c
-            )
-        );
-    };
-
-
-
-    const startConversation = async () => {
-        if (!selectedClient) return;
-
-        const token = localStorage.getItem("accessToken");
-
-        const response = await fetch(
-            `${API_BASE_URL}/conversations/start`,
-            {
-                method: "POST",
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ clientId: Number(selectedClient) })
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
-        );
 
-        if (!response.ok) return;
-
-        const conversation = await response.json();
-
-        setConversations(prev => [...prev, conversation]);
-        setSelectedConversation(conversation);
-
-        setShowNewConversation(false);
-        setSelectedClient("");
+            const data = await response.json();
+            console.log('Messages reçus:', data);
+            setMessages(data);
+        } catch (error) {
+            console.error('Erreur lors du fetch des messages:', error);
+            setMessages([]);
+        } finally {
+            setIsLoadingMessages(false);
+        }
     };
-
 
 
     const handleSendMessage = (content) => {
@@ -190,10 +160,13 @@ export default function ChatInterface({ userType, userId }) {
         const message = {
             conversationId: selectedConversation.id,
             senderId: userId,
+            receiverId: selectedConversation.otherUserId,
             senderType: userType,
             content: content
         };
 
+        console.log('Envoi du message:', message);
+        setIsSending(true);
 
         stompClientRef.current.send(
             '/app/chat.send',
@@ -275,15 +248,32 @@ export default function ChatInterface({ userType, userId }) {
                 selectedConversation={selectedConversation}
                 onSelectConversation={handleSelectConversation}
                 userType={userType}
+                isLoading={isLoadingConversations}
             />
 
             <div className="chat-main">
                 {selectedConversation ? (
                     <>
-                        <ChatWindow
-                            messages={messages}
-                            currentUserId={userId}
-                        />
+                        <div className="chat-header">
+                            <div className="chat-header-info">
+                                <h2>{selectedConversation.name}</h2>
+                                <span className={`status ${isConnected ? 'connected' : 'disconnected'}`}>
+                                    {isConnected ? '● En ligne' : '● Hors ligne'}
+                                </span>
+                            </div>
+                        </div>
+
+                        {isLoadingMessages ? (
+                            <div className="loading">
+                                <p>Chargement des messages...</p>
+                            </div>
+                        ) : (
+                            <ChatWindow
+                                messages={messages}
+                                currentUserId={userId}
+                                isSending={isSending}
+                            />
+                        )}
 
                         <MessageInput
                             onSendMessage={handleSendMessage}

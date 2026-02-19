@@ -7,7 +7,6 @@ export default function ConversationList({
                                              userType,
                                              isLoading
                                          }) {
-
     return (
         <div className="conversation-list">
 
@@ -21,15 +20,11 @@ export default function ConversationList({
 
 
             <div className="conversations">
-
-
                 {isLoading ? (
                     <div className="loading">
                         <p>Chargement des conversations...</p>
                     </div>
-                ) : !conversations || conversations.length === 0 ? (
-
-
+                ) : conversations.length === 0 ? (
                     <div className="empty-conversations">
                         <p>Aucune conversation</p>
                     </div>

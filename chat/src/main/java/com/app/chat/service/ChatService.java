@@ -1,16 +1,13 @@
 package com.app.chat.service;
 
 import com.app.chat.dto.ConversationDto;
-import com.app.chat.model.Conversation;
 import com.app.chat.model.Message;
 import com.app.chat.repository.ChatRepository;
 import com.app.chat.repository.ConversationRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,31 +91,21 @@ public class ChatService {
         return dto;
     }
 
-
-
-    public Message sendMessage(Long conversationId,
-                               Long senderId,
-                               Long receiverId,
-                               String senderType,
-                               String content) {
-
-        Conversation conversation = getConversation(conversationId);
-
-
-        if (senderType.equals("CLIENT")) {
-            receiverId = conversation.getAgentId();
-        } else {
-            receiverId = conversation.getClientId();
+    public Message saveMessage(Message message) {
+        if (message.getConversationId() == null) {
+            throw new IllegalArgumentException("conversationId ne peut pas être null");
         }
 
-        Message message = new Message();
-        message.setConversation(conversation);
-        message.setSenderId(senderId);
-        message.setReceiverId(receiverId);
-        message.setSenderType(senderType);
-        message.setContent(content);
-        message.setTimestamp(LocalDateTime.now());
-        message.setRead(false);
+
+        if (message.getSenderType() == null ||
+                (!message.getSenderType().equals("AGENT") && !message.getSenderType().equals("CLIENT"))) {
+            throw new IllegalArgumentException("senderType doit être AGENT ou CLIENT");
+        }
+
+
+        if (message.getTimestamp() == null) {
+            message.setTimestamp(LocalDateTime.now());
+        }
 
         return chatRepository.save(message);
     }
@@ -149,12 +136,98 @@ public class ChatService {
 
     public List<Map<String, Object>> getAllClients() {
 
-        return conversationRepository.findAllClients()
-                .stream()
-                .map(obj -> Map.of(
-                        "id", ((Number) obj[0]).longValue(),
-                        "fullName", obj[1]
-                ))
-                .toList();
+    public List<Message> getConversation(Long conversationId) {
+        if (conversationId == null || conversationId <= 0) {
+            throw new IllegalArgumentException("conversationId invalide");
+        }
+        return chatRepository.findByConversationIdOrderByTimestampAsc(conversationId);
+    }
+
+
+    public List<Message> getConversationDesc(Long conversationId) {
+        if (conversationId == null || conversationId <= 0) {
+            throw new IllegalArgumentException("conversationId invalide");
+        }
+        return chatRepository.findByConversationIdOrderByTimestampDesc(conversationId);
+    }
+
+
+    public List<ConversationDto> getUserConversations(Long userId) {
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("userId invalide");
+        }
+
+
+        List<Long> conversationIds = chatRepository.findDistinctConversationIdsByUserId(userId);
+
+        if (conversationIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+
+        return conversationIds.stream()
+                .map(convId -> buildConversationDto(convId, userId))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+
+    private ConversationDto buildConversationDto(Long conversationId, Long userId) {
+        try {
+
+            Message lastMessage = chatRepository.findLastMessageByConversationId(conversationId);
+
+            if (lastMessage == null) {
+                return null;
+            }
+
+
+            Long otherUserId = chatRepository.findOtherUserInConversation(conversationId, userId);
+
+            if (otherUserId == null) {
+                return null;
+            }
+
+            ConversationDto dto = new ConversationDto();
+            dto.setId(conversationId);
+            dto.setOtherUserId(otherUserId);
+            dto.setLastMessage(lastMessage.getContent());
+            dto.setLastMessageTime(lastMessage.getTimestamp());
+            dto.setLastSenderType(lastMessage.getSenderType());
+            dto.setUnreadCount(0);
+
+            return dto;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<Message> getConversationMessages(Long conversationId, Long userId) {
+        if (conversationId == null || conversationId <= 0) {
+            throw new IllegalArgumentException("conversationId invalide");
+        }
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("userId invalide");
+        }
+
+        boolean hasAccess = chatRepository.userBelongsToConversation(conversationId, userId);
+        if (!hasAccess) {
+            throw new SecurityException("Accès refusé à cette conversation");
+        }
+
+        return chatRepository.findByConversationIdOrderByTimestampAsc(conversationId);
+    }
+
+    public boolean userHasAccessToConversation(Long conversationId, Long userId) {
+        return chatRepository.userBelongsToConversation(conversationId, userId);
+    }
+
+    public boolean conversationExistsBetweenUsers(Long conversationId, Long userId1, Long userId2) {
+        return chatRepository.conversationExistsBetweenUsers(conversationId, userId1, userId2);
+    }
+
+
+    public Long getOtherUserInConversation(Long conversationId, Long userId) {
+        return chatRepository.findOtherUserInConversation(conversationId, userId);
     }
 }
