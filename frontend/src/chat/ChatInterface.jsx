@@ -13,7 +13,6 @@ export default function ChatInterface({ userType, userId, userName }) {
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [isSending, setIsSending] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [isLoadingConversations, setIsLoadingConversations] = useState(true);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
@@ -46,22 +45,48 @@ export default function ChatInterface({ userType, userId, userName }) {
                         receivedMessage.conversationId,
                         receivedMessage.content
                     );
+                }
+
+
+                setConversations(prev => {
+                    const exists = prev.find(c => c.id === receivedMessage.conversation.id);
+                    if (!exists) {
+                        return [
+                            ...prev,
+                            {
+                                id: receivedMessage.conversation.id,
+                                otherUserId: receivedMessage.senderId,
+                                otherUserName: receivedMessage.senderType === "CLIENT" ? "Client" : "Agent",
+                                lastMessage: receivedMessage.content,
+                                unreadCount: 1
+                            }
+                        ];
+                    }
+                    return prev;
                 });
-            },
-            (error) => {
-                console.error('Erreur WebSocket:', error);
-                setIsConnected(false);
-            }
-        );
+
+
+                updateConversationLastMessage(
+                    receivedMessage.conversation.id,
+                    receivedMessage.content
+                );
+
+
+                fetchConversations();
+            });
+        });
 
         stompClientRef.current = stompClient;
 
         return () => {
-            if (stompClient && stompClient.connected) {
+            if (stompClient.connected) {
                 stompClient.disconnect();
             }
         };
-    }, [userType, userId]);
+
+    }, [userId, selectedConversation]);
+
+
 
 
     useEffect(() => {
@@ -130,43 +155,94 @@ export default function ChatInterface({ userType, userId, userName }) {
 
 
     const handleSendMessage = (content) => {
-        if (!selectedConversation || !stompClientRef.current) {
-            alert('Veuillez sélectionner une conversation');
-            return;
-        }
+        if (!selectedConversation) return;
 
         const message = {
+            conversationId: selectedConversation.id,
             senderId: userId,
             receiverId: selectedConversation.otherUserId,
             senderType: userType,
-            content: content,
-            conversationId: selectedConversation.id,
-            timestamp: new Date().toISOString(),
+            content: content
         };
 
         console.log('Envoi du message:', message);
         setIsSending(true);
 
-        stompClientRef.current.send('/app/chat.send', {}, JSON.stringify(message));
+        stompClientRef.current.send(
+            '/app/chat.send',
+            {},
+            JSON.stringify(message)
+        );
 
-        setTimeout(() => {
-            setMessages((prev) => [...prev, message]);
-            setIsSending(false);
-        }, 300);
+        if (userType === "AGENT") {
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    content: content,
+                    senderId: userId,
+                    receiverId: selectedConversation.otherUserId,
+                    senderType: userType,
+                    timestamp: new Date().toISOString(),
+                    conversation: { id: selectedConversation.id }
+                }
+            ]);
+
+            updateConversationLastMessage(selectedConversation.id, content);
+        }
     };
 
+
+
     const updateConversationLastMessage = (conversationId, lastMessage) => {
-        setConversations((prev) =>
-            prev.map((conv) =>
+        setConversations(prev =>
+            prev.map(conv =>
                 conv.id === conversationId
-                    ? { ...conv, lastMessage, unreadCount: 0 }
+                    ? { ...conv, lastMessage }
                     : conv
             )
         );
     };
 
+
     return (
         <div className="chat-interface">
+
+            <div style={{ padding: 10 }}>
+                {userType === "AGENT" && (
+                    <>
+                        <button
+                            onClick={() => {
+                                fetchClients();
+                                setShowNewConversation(true);
+                            }}
+                        >
+                            + Nouvelle conversation
+                        </button>
+
+                        {showNewConversation && (
+                            <div style={{ marginTop: 10 }}>
+                                <select
+                                    value={selectedClient}
+                                    onChange={(e) => setSelectedClient(e.target.value)}
+                                >
+                                    <option value="">Choisir un client</option>
+                                    {clients.map(client => (
+                                        <option key={client.id} value={client.id}>
+                                            {client.fullName}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <button onClick={startConversation}>
+                                    Démarrer
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
             <ConversationList
                 conversations={conversations}
                 selectedConversation={selectedConversation}
@@ -206,7 +282,7 @@ export default function ChatInterface({ userType, userId, userName }) {
                     </>
                 ) : (
                     <div className="no-conversation">
-                        <p>Sélectionnez une conversation pour commencer</p>
+                        <p>Sélectionnez une conversation</p>
                     </div>
                 )}
             </div>

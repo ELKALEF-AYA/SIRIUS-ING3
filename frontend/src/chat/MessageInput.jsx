@@ -2,22 +2,32 @@ import { useState, useRef } from 'react';
 import './MessageInput.css';
 
 export default function MessageInput({ onSendMessage, disabled }) {
+
     const [message, setMessage] = useState('');
     const textareaRef = useRef(null);
 
+
     const handleInputChange = (e) => {
-        setMessage(e.target.value);
+        const value = e.target.value;
+        setMessage(value);
+
+
         e.target.style.height = 'auto';
         e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
     };
 
+
     const handleSendMessage = () => {
-        if (message.trim() && !disabled) {
-            onSendMessage(message.trim());
-            setMessage('');
-            if (textareaRef.current) {
-                textareaRef.current.style.height = 'auto';
-            }
+        const trimmed = message.trim();
+
+        if (!trimmed || disabled) return;
+
+        onSendMessage(trimmed);
+        setMessage('');
+
+        // Reset hauteur textarea
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
         }
     };
 
@@ -30,6 +40,7 @@ export default function MessageInput({ onSendMessage, disabled }) {
 
     return (
         <div className="message-input-container">
+
             <textarea
                 ref={textareaRef}
                 className="message-input"
@@ -40,6 +51,7 @@ export default function MessageInput({ onSendMessage, disabled }) {
                 disabled={disabled}
                 rows={1}
             />
+
             <button
                 className="send-button"
                 onClick={handleSendMessage}
@@ -48,6 +60,7 @@ export default function MessageInput({ onSendMessage, disabled }) {
             >
                 <span>➤</span>
             </button>
+
         </div>
     );
 }
