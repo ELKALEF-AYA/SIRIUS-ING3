@@ -6,6 +6,7 @@ import com.app.chat.model.Message;
 import com.app.chat.repository.ChatRepository;
 import com.app.chat.repository.ConversationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,18 +29,13 @@ public class ChatService {
     }
 
     public Conversation getOrCreateConversation(Long clientId) {
-
         Optional<Conversation> existing = conversationRepository.findByClientId(clientId);
-
-        if (existing.isPresent()) {
-            return existing.get();
-        }
+        if (existing.isPresent()) return existing.get();
 
         Conversation conversation = new Conversation();
         conversation.setClientId(clientId);
         conversation.setAgentId(AGENT_ID);
         conversation.setCreatedAt(LocalDateTime.now());
-
         return conversationRepository.save(conversation);
     }
 
@@ -49,13 +45,10 @@ public class ChatService {
     }
 
     public List<ConversationDto> getAgentConversations(Long agentId) {
-
         List<Conversation> conversations = conversationRepository.findByAgentId(agentId);
 
         return conversations.stream().map(conv -> {
-
-            Message lastMessage =
-                    chatRepository.findTopByConversationOrderByTimestampDesc(conv);
+            Message lastMessage = chatRepository.findTopByConversationOrderByTimestampDesc(conv);
 
             ConversationDto dto = new ConversationDto();
             dto.setId(conv.getId());
@@ -75,12 +68,10 @@ public class ChatService {
             );
 
             return dto;
-
         }).collect(Collectors.toList());
     }
 
     public ConversationDto startConversation(Long clientId, Long agentIdIgnored) {
-
         Conversation conversation = getOrCreateConversation(clientId);
 
         ConversationDto dto = new ConversationDto();
@@ -92,12 +83,8 @@ public class ChatService {
         return dto;
     }
 
-    public Message sendMessage(Long conversationId,
-                               Long senderId,
-                               Long receiverId,
-                               String senderType,
-                               String content) {
-
+    public Message sendMessage(Long conversationId, Long senderId, Long receiverId,
+                               String senderType, String content) {
         Conversation conversation = getConversation(conversationId);
 
         if (senderType.equals("CLIENT")) {
@@ -118,8 +105,8 @@ public class ChatService {
         return chatRepository.save(message);
     }
 
+    @Transactional
     public List<Message> getMessages(Long conversationId, Long userId) {
-
         Conversation conversation = getConversation(conversationId);
 
         if (!conversation.getClientId().equals(userId)
@@ -127,8 +114,8 @@ public class ChatService {
             throw new RuntimeException("Accès refusé");
         }
 
-        List<Message> messages =
-                chatRepository.findByConversationOrderByTimestampAsc(conversation);
+
+        List<Message> messages = chatRepository.findMessagesByConversation(conversation);
 
         messages.stream()
                 .filter(m -> m.getReceiverId().equals(userId) && !m.isRead())
@@ -139,8 +126,8 @@ public class ChatService {
         return messages;
     }
 
-    public List<Map<String, Object>> getAllClients() {
 
+    public List<Map<String, Object>> getAllClients() {
         return conversationRepository.findAllClients()
                 .stream()
                 .map(obj -> Map.of(

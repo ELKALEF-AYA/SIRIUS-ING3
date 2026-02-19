@@ -11,4 +11,4 @@ spring:
 app:
   jwt:
     secret: "v9Qp2mL7xR4nK8tS1yC6hD3gF5jA0zW2"
-    ttlMinutes: 1440
+    ttlMinutes: 525600
