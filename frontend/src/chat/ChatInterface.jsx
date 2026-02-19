@@ -9,195 +9,281 @@ import './ChatInterface.css';
 const API_BASE_URL = 'http://localhost:8083/api/chat';
 const WS_URL = 'http://localhost:8083/ws';
 
-export default function ChatInterface({ userType, userId, userName }) {
+export default function ChatInterface({ userType, userId }) {
+
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [isSending, setIsSending] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
-    const [isLoadingConversations, setIsLoadingConversations] = useState(true);
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+
+    const [clients, setClients] = useState([]);
+    const [selectedClient, setSelectedClient] = useState("");
+    const [showNewConversation, setShowNewConversation] = useState(false);
+
     const stompClientRef = useRef(null);
 
 
+
     useEffect(() => {
-        console.log('Connecting to WebSocket...');
         const socket = new SockJS(WS_URL);
         const stompClient = Stomp.over(socket);
 
-        stompClient.connect(
-            {},
-            () => {
-                console.log('✓ WebSocket connecté');
-                setIsConnected(true);
+        stompClient.connect({}, () => {
+            setIsConnected(true);
 
-                const topic =
-                    userType === 'AGENT'
-                        ? `/topic/agent/${userId}`
-                        : `/topic/client/${userId}`;
+            const topic = `/topic/user/${userId}`;
 
-                console.log('Subscribing to topic:', topic);
-                stompClient.subscribe(topic, (message) => {
-                    const receivedMessage = JSON.parse(message.body);
-                    console.log('Message reçu:', receivedMessage);
+            stompClient.subscribe(topic, (msg) => {
+                const receivedMessage = JSON.parse(msg.body);
 
-                    setMessages((prev) => [...prev, receivedMessage]);
-                    updateConversationLastMessage(
-                        receivedMessage.conversationId,
-                        receivedMessage.content
+
+                if (selectedConversation &&
+                    selectedConversation.id === receivedMessage.conversation.id) {
+
+                    setMessages(prev => [...prev, receivedMessage]);
+
+                } else {
+
+                    setConversations(prev =>
+                        prev.map(c =>
+                            c.id === receivedMessage.conversation.id
+                                ? { ...c, unreadCount: (c.unreadCount || 0) + 1 }
+                                : c
+                        )
                     );
+                }
+
+
+                setConversations(prev => {
+                    const exists = prev.find(c => c.id === receivedMessage.conversation.id);
+                    if (!exists) {
+                        return [
+                            ...prev,
+                            {
+                                id: receivedMessage.conversation.id,
+                                otherUserId: receivedMessage.senderId,
+                                otherUserName: receivedMessage.senderType === "CLIENT" ? "Client" : "Agent",
+                                lastMessage: receivedMessage.content,
+                                unreadCount: 1
+                            }
+                        ];
+                    }
+                    return prev;
                 });
-            },
-            (error) => {
-                console.error('Erreur WebSocket:', error);
-                setIsConnected(false);
-            }
-        );
+
+
+                updateConversationLastMessage(
+                    receivedMessage.conversation.id,
+                    receivedMessage.content
+                );
+
+
+                fetchConversations();
+            });
+        });
 
         stompClientRef.current = stompClient;
 
         return () => {
-            if (stompClient && stompClient.connected) {
+            if (stompClient.connected) {
                 stompClient.disconnect();
             }
         };
-    }, [userType, userId]);
+
+    }, [userId, selectedConversation]);
+
 
 
     useEffect(() => {
         fetchConversations();
-    }, [userId]);
+    }, []);
 
     const fetchConversations = async () => {
-        try {
-            setIsLoadingConversations(true);
-            console.log('Fetching conversations for userId:', userId);
+        const token = localStorage.getItem("accessToken");
 
-            const response = await fetch(`${API_BASE_URL}/conversations?userId=${userId}`);
+        const response = await fetch(`${API_BASE_URL}/conversations`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+        if (!response.ok) return;
 
-            const data = await response.json();
-            console.log('Conversations reçues:', data);
-
-            const formattedConversations = data.map((conv) => ({
-                id: conv.id,
-                otherUserId: conv.otherUserId,
-                name: `User ${conv.otherUserId}`,
-                lastMessage: conv.lastMessage || 'Pas de messages',
-                lastMessageTime: conv.lastMessageTime,
-                unreadCount: conv.unreadCount || 0,
-            }));
-
-            setConversations(formattedConversations);
-        } catch (error) {
-            console.error('Erreur lors du fetch des conversations:', error);
-            setConversations([]);
-        } finally {
-            setIsLoadingConversations(false);
-        }
+        const data = await response.json();
+        setConversations(data);
     };
+
+
+
+    const fetchClients = async () => {
+        const token = localStorage.getItem("accessToken");
+
+        const response = await fetch(`${API_BASE_URL}/clients`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        setClients(data);
+    };
+
 
 
     const handleSelectConversation = async (conversation) => {
-        console.log('Selection conversation:', conversation);
         setSelectedConversation(conversation);
-        setMessages([]);
-        setIsLoadingMessages(true);
 
-        try {
-            console.log(`Fetching messages for conversationId ${conversation.id}`);
-            const response = await fetch(
-                `${API_BASE_URL}/conversations/${conversation.id}/messages?userId=${userId}`
-            );
+        const token = localStorage.getItem("accessToken");
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+        const response = await fetch(
+            `${API_BASE_URL}/conversations/${conversation.id}/messages`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
 
-            const data = await response.json();
-            console.log('Messages reçus:', data);
-            setMessages(data);
-        } catch (error) {
-            console.error('Erreur lors du fetch des messages:', error);
-            setMessages([]);
-        } finally {
-            setIsLoadingMessages(false);
-        }
+        if (!response.ok) return;
+
+        const data = await response.json();
+        setMessages(data);
+
+        setConversations(prev =>
+            prev.map(c =>
+                c.id === conversation.id
+                    ? { ...c, unreadCount: 0 }
+                    : c
+            )
+        );
     };
+
+
+
+    const startConversation = async () => {
+        if (!selectedClient) return;
+
+        const token = localStorage.getItem("accessToken");
+
+        const response = await fetch(
+            `${API_BASE_URL}/conversations/start`,
+            {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ clientId: Number(selectedClient) })
+            }
+        );
+
+        if (!response.ok) return;
+
+        const conversation = await response.json();
+
+        setConversations(prev => [...prev, conversation]);
+        setSelectedConversation(conversation);
+
+        setShowNewConversation(false);
+        setSelectedClient("");
+    };
+
 
 
     const handleSendMessage = (content) => {
-        if (!selectedConversation || !stompClientRef.current) {
-            alert('Veuillez sélectionner une conversation');
-            return;
-        }
+        if (!selectedConversation) return;
 
         const message = {
-            senderId: userId,
-            receiverId: selectedConversation.otherUserId,
-            senderType: userType,
-            content: content,
             conversationId: selectedConversation.id,
-            timestamp: new Date().toISOString(),
+            senderId: userId,
+            senderType: userType,
+            content: content
         };
 
-        console.log('Envoi du message:', message);
-        setIsSending(true);
 
-        stompClientRef.current.send('/app/chat.send', {}, JSON.stringify(message));
+        stompClientRef.current.send(
+            '/app/chat.send',
+            {},
+            JSON.stringify(message)
+        );
 
-        setTimeout(() => {
-            setMessages((prev) => [...prev, message]);
-            setIsSending(false);
-        }, 300);
+        if (userType === "AGENT") {
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    content: content,
+                    senderId: userId,
+                    receiverId: selectedConversation.otherUserId,
+                    senderType: userType,
+                    timestamp: new Date().toISOString(),
+                    conversation: { id: selectedConversation.id }
+                }
+            ]);
+
+            updateConversationLastMessage(selectedConversation.id, content);
+        }
     };
 
+
+
     const updateConversationLastMessage = (conversationId, lastMessage) => {
-        setConversations((prev) =>
-            prev.map((conv) =>
+        setConversations(prev =>
+            prev.map(conv =>
                 conv.id === conversationId
-                    ? { ...conv, lastMessage, unreadCount: 0 }
+                    ? { ...conv, lastMessage }
                     : conv
             )
         );
     };
 
+
     return (
         <div className="chat-interface">
+
+            <div style={{ padding: 10 }}>
+                {userType === "AGENT" && (
+                    <>
+                        <button
+                            onClick={() => {
+                                fetchClients();
+                                setShowNewConversation(true);
+                            }}
+                        >
+                            + Nouvelle conversation
+                        </button>
+
+                        {showNewConversation && (
+                            <div style={{ marginTop: 10 }}>
+                                <select
+                                    value={selectedClient}
+                                    onChange={(e) => setSelectedClient(e.target.value)}
+                                >
+                                    <option value="">Choisir un client</option>
+                                    {clients.map(client => (
+                                        <option key={client.id} value={client.id}>
+                                            {client.fullName}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <button onClick={startConversation}>
+                                    Démarrer
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
             <ConversationList
                 conversations={conversations}
                 selectedConversation={selectedConversation}
                 onSelectConversation={handleSelectConversation}
                 userType={userType}
-                isLoading={isLoadingConversations}
             />
 
             <div className="chat-main">
                 {selectedConversation ? (
                     <>
-                        <div className="chat-header">
-                            <div className="chat-header-info">
-                                <h2>{selectedConversation.name}</h2>
-                                <span className={`status ${isConnected ? 'connected' : 'disconnected'}`}>
-                                    {isConnected ? '● En ligne' : '● Hors ligne'}
-                                </span>
-                            </div>
-                        </div>
-
-                        {isLoadingMessages ? (
-                            <div className="loading">
-                                <p>Chargement des messages...</p>
-                            </div>
-                        ) : (
-                            <ChatWindow
-                                messages={messages}
-                                currentUserId={userId}
-                                isSending={isSending}
-                            />
-                        )}
+                        <ChatWindow
+                            messages={messages}
+                            currentUserId={userId}
+                        />
 
                         <MessageInput
                             onSendMessage={handleSendMessage}
@@ -206,7 +292,7 @@ export default function ChatInterface({ userType, userId, userName }) {
                     </>
                 ) : (
                     <div className="no-conversation">
-                        <p>Sélectionnez une conversation pour commencer</p>
+                        <p>Sélectionnez une conversation</p>
                     </div>
                 )}
             </div>
