@@ -145,6 +145,24 @@ export default function ChatInterface({ userType, userId }) {
         setSelectedClient("");
     };
 
+    const startClientConversation = async () => {
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch(`${API_BASE_URL}/conversations/start`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ clientId: Number(userId) })
+        });
+
+        if (!response.ok) return;
+        const conversation = await response.json();
+        setConversations([conversation]);
+        setSelectedConversation(conversation);
+        setMessages([]);
+    };
+
     const handleSendMessage = (content) => {
         if (!selectedConversation || !stompClientRef.current?.connected) return;
 
@@ -177,6 +195,12 @@ export default function ChatInterface({ userType, userId }) {
                             </div>
                         )}
                     </>
+                )}
+
+                {userType === "CLIENT" && conversations.length === 0 && (
+                    <button onClick={startClientConversation}>
+                        + Contacter l'agent
+                    </button>
                 )}
             </div>
 
