@@ -20,7 +20,7 @@ export default function ClientHome() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                 <div>
                     <h2 style={{ margin: 0 }}>Espace Client</h2>
-                    <p style={{ margin: "6px 0 0" }}>Connecté : {fullName || email || "Client"}</p>
+                    <p style={{ margin: "6px 0 0" }}> {fullName || email || "Client"}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <NotificationBell />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
+import { useLocation } from "react-router-dom";
 
 const PdfIcon = () => (
   <svg
@@ -35,7 +36,8 @@ export default function ClientRentReceipt() {
   const [quittances, setQuittances] = useState([]);
   const [error, setError] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
- const [successId, setSuccessId] = useState(null);
+  const [successId, setSuccessId] = useState(null);
+  const location = useLocation();
 
 
   useEffect(() => {
@@ -46,6 +48,24 @@ export default function ClientRentReceipt() {
       .then(res => setQuittances(res.data))
       .catch(() => setError(true));
   }, []);
+
+  useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      const receiptId = params.get("receiptId");
+      if (!receiptId) return;
+
+      const el = document.getElementById(`receipt-${receiptId}`);
+      if (!el) return;
+
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      el.classList.remove("receipt-highlight");
+      void el.offsetHeight;
+      el.classList.add("receipt-highlight");
+
+      setTimeout(() => el.classList.remove("receipt-highlight"), 2000);
+      window.history.replaceState({}, "", "/client");
+  }, [location.search, quittances]);
 
   const formatPeriode = (periode) => {
     const [year, month] = periode.split("-");
@@ -105,7 +125,7 @@ export default function ClientRentReceipt() {
             {quittances
               .sort((a, b) => b.periode.localeCompare(a.periode))
              .map(q => (
-               <div key={q.id} className="receipts-row">
+                 <div key={q.id} id={`receipt-${q.id}`} className="receipts-row">
                  <span>{formatPeriode(q.periode)}</span>
 
                  <span className="amount">

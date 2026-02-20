@@ -26,8 +26,13 @@ public class NotificationService {
     }
 
     @Transactional
-    public Notification createInvoiceGenerated(Long tenantId, Long invoiceId, String period) {
-
+    public Notification createInvoiceGenerated(Long tenantId, Long receiptId, String period) {
+        if (tenantId == null || receiptId == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Les champs tenantId et receiptId sont obligatoires."
+            );
+        }
         Long userId = userAuthRepository.findUserIdByTenantId(tenantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Aucun utilisateur associé au locataire (tenantId=" + tenantId + ")."));
@@ -35,13 +40,13 @@ public class NotificationService {
         Notification n = new Notification();
         n.setTenantId(tenantId);
         n.setUserId(userId);
-        n.setType("INVOICE_GENERATED");
+        n.setType("RENT_RECEIPT_GENERATED");
         n.setTitle("Quittance disponible");
 
-        String periodFr = formatPeriodFr(period); // ex: "mars 2026"
-        n.setBody("Votre quittance pour " + periodFr + " est disponible dans votre espace.");
+        String periodFr = formatPeriodFr(period);
+        n.setBody("Votre quittance de loyer pour " + periodFr + " est disponible. Cliquez pour la télécharger.");
+        n.setLink("/client?receiptId=" + receiptId);
 
-        n.setLink("/client/quittances/" + invoiceId);
         n.setRead(false);
 
         Notification saved = notificationRepository.save(n);

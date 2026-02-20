@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useNotifications } from "./useNotifications";
 import "./notifications.css";
 
@@ -7,6 +8,7 @@ export default function NotificationBell() {
     const [open, setOpen] = useState(false);
     const [filter, setFilter] = useState("all");
     const ref = useRef(null);
+    const navigate = useNavigate();
 
     function formatDateTime(iso) {
         if (!iso) return "";
@@ -32,14 +34,18 @@ export default function NotificationBell() {
 
     function onClickNotif(n) {
         if (!n.isRead) markRead(n.id);
-        if (n.link) window.location.href = n.link;
+
+        if (n.link) {
+            const sep = n.link.includes("?") ? "&" : "?";
+            navigate(`${n.link}${sep}t=${Date.now()}`);
+        }
+
         setOpen(false);
     }
 
     const visibleItems = useMemo(() => {
         const sorted = [...items].sort((a, b) => {
             if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
-
             const ta = Date.parse(a.createdAt) || 0;
             const tb = Date.parse(b.createdAt) || 0;
             return tb - ta;
@@ -64,7 +70,7 @@ export default function NotificationBell() {
                 title="Notifications"
                 type="button"
             >
-                🔔
+                <img src="/notification.png" alt="Notifications" className="notif-bell-icon" />
                 {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
             </button>
 
@@ -124,7 +130,21 @@ export default function NotificationBell() {
                                         <div className="notif-item-date">{formatDateTime(n.createdAt)}</div>
                                     </div>
 
-                                    <div className="notif-item-body">{n.body}</div>
+                                    <div className="notif-item-body">
+                                        {(() => {
+                                            const body = n.body || "";
+                                            const cta = "Cliquez pour la télécharger.";
+                                            if (!body.includes(cta)) return body;
+
+                                            const before = body.replace(cta, "").trim();
+                                            return (
+                                                <>
+                                                    {before}{" "}
+                                                    <span className="notif-cta">{cta}</span>
+                                                </>
+                                            );
+                                        })()}
+                                    </div>
                                 </div>
                             ))
                         )}
