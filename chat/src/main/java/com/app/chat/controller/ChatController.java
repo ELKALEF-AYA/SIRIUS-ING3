@@ -102,17 +102,22 @@ public class ChatController {
             @RequestBody Map<String, Long> body) {
 
         Long userId = extractUserId(authHeader);
-        if (userId == null || !userId.equals(AGENT_ID))
-            return ResponseEntity.status(401).build();
+        if (userId == null) return ResponseEntity.status(401).build();
 
         Long clientId = body.get("clientId");
         if (clientId == null) return ResponseEntity.badRequest().build();
 
-        ConversationDto dto = chatService.startConversation(clientId, AGENT_ID);
+        if (!userId.equals(AGENT_ID) && !userId.equals(clientId))
+            return ResponseEntity.status(403).build();
 
+        ConversationDto dto = chatService.startConversation(clientId, AGENT_ID);
 
         messagingTemplate.convertAndSend(
                 "/topic/user/" + clientId,
+                Map.of("type", "NEW_CONVERSATION", "conversationId", dto.getId())
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/user/" + AGENT_ID,
                 Map.of("type", "NEW_CONVERSATION", "conversationId", dto.getId())
         );
 
