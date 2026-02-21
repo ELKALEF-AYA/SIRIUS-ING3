@@ -1,0 +1,65 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: rent-receipt
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+  datasource:
+    url: jdbc:postgresql://172.31.249.236:5432/jsa_db
+    username: jsa
+    password: aya
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+
+  data:
+    redis:
+      host: 172.31.250.214
+      port: 6379
+      timeout: 2000
+
+
+  kafka:
+    bootstrap-servers: 172.31.249.91:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+app:
+    kafka:
+      topics:
+        rent-receipt-created: rent-receipt-created
+
+
+minio:
+  url: https://172.31.250.54:9000
+  access-key: admin
+  secret-key: admin123
+  bucket: quittances
+
+
+logging:
+  level:
+    root: INFO
+    episen.sirius: DEBUG
+    org.springframework.kafka: INFO
+    org.apache.kafka: INFO
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} | %-5level | %thread | %logger{36} | %msg%n"
+

@@ -1,0 +1,21 @@
+# Root-level .dockerignore
+# Used when building backend services from project root context
+
+# Compiled artifacts
+**/target/
+
+# IDE / OS files
+.idea/
+**/*.iml
+**/.mvn/
+.git/
+.gitignore
+*.md
+
+# Other services not needed for partial builds
+# (each Dockerfile only copies the modules it needs)
+frontend/
+infra/
+
+# Node artifacts
+**/node_modules/

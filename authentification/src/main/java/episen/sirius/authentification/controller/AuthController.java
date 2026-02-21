@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
     private final UserAuthRepository repo;
     private final JwtService jwt;
 
@@ -26,8 +27,19 @@ public class AuthController {
 
         return repo.findByEmailAndPassword(req.email(), req.password())
                 .map(u -> {
-                    String token = jwt.generateToken(u.id(), u.email(), u.role());
-                    return ResponseEntity.ok(new LoginResponse(token, u.role(), u.id(), u.email()));
+                    String token = jwt.generateToken(u.id(), u.email(), u.role(), u.tenantId());
+
+                    return ResponseEntity.ok(
+                            new LoginResponse(
+                                    token,
+                                    u.role(),
+                                    u.id(),
+                                    u.tenantId(),
+                                    u.email(),
+                                    u.firstName(),
+                                    u.lastName()
+                            )
+                    );
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }

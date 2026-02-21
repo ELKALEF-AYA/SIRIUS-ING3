@@ -1,0 +1,40 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:postgresql://172.31.249.236:5432/jsa_db
+    username: jsa
+    password: aya
+  jpa:
+    open-in-view: false
+
+  devtools:
+    livereload:
+      enabled: false
+
+  kafka:
+    bootstrap-servers: 172.31.249.91:9092
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "episen.sirius.messaging.kafka.model"
+
+  logging:
+    level:
+      org.hibernate.orm.connections.pooling: WARN
+      org.hibernate.orm.connections: WARN
+      org.hibernate: WARN
+
+app:
+  jwt:
+    secret: "v9Qp2mL7xR4nK8tS1yC6hD3gF5jA0zW2"
+
+  kafka:
+    topics:
+      rent-receipt-created: rent-receipt-created
+    consumer:
+      group-id: notification-group

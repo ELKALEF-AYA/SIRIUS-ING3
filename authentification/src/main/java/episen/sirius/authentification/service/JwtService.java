@@ -19,20 +19,21 @@ public class JwtService {
     public JwtService(@Value("${app.jwt.secret}") String secret,
                       @Value("${app.jwt.ttlMinutes}") long ttlMinutes) {
         if (secret == null || secret.length() < 32) {
-            throw new IllegalArgumentException("app.jwt.secret must be at least 32 characters");
+            throw new IllegalArgumentException("app.jwt.secret doit contenir au moins 32 caractères");
         }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.ttlMinutes = ttlMinutes;
     }
 
-    public String generateToken(Long userId, String email, String role) {
+    public String generateToken(Long userId, String email, String role, Long tenantId) {
         Instant now = Instant.now();
         Instant exp = now.plus(Duration.ofMinutes(ttlMinutes));
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("email", email)
-                .claim("role", role) // AGENT ou CLIENT
+                .claim("role", role)       // AGENT ou CLIENT
+                .claim("tenantId", tenantId)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(key, Jwts.SIG.HS256)

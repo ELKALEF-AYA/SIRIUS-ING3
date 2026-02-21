@@ -3,5 +3,11 @@ server:
 
 services:
   authBaseUrl: "http://localhost:8081"
+  notificationBaseUrl: "http://localhost:8084"
   rentReceiptBaseUrl: http://localhost:8082
+  chatBaseUrl        : "http://localhost:8083"
 
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
