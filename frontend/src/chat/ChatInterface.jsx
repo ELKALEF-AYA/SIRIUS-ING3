@@ -139,8 +139,7 @@ export default function ChatInterface({ userType, userId }) {
             return [...prev, conversation];
         });
 
-        setSelectedConversation(conversation);
-        setMessages([]);
+        handleSelectConversation(conversation);
         setShowNewConversation(false);
         setSelectedClient("");
     };
@@ -158,9 +157,14 @@ export default function ChatInterface({ userType, userId }) {
 
         if (!response.ok) return;
         const conversation = await response.json();
-        setConversations([conversation]);
-        setSelectedConversation(conversation);
-        setMessages([]);
+
+        setConversations(prev => {
+            const exists = prev.find(c => c.id === conversation.id);
+            if (exists) return prev;
+            return [...prev, conversation];
+        });
+
+        handleSelectConversation(conversation);
     };
 
     const handleSendMessage = (content) => {
