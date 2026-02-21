@@ -1,0 +1,25 @@
+services:
+
+  auth-service:
+    build:
+      context: ../..
+      dockerfile: authentification/Dockerfile
+    image: sirius/auth-service:latest
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://172.31.249.236:5432/jsa_db
+      SPRING_DATASOURCE_USERNAME: jsa
+      SPRING_DATASOURCE_PASSWORD: aya
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      APP_JWT_SECRET: ${JWT_SECRET}
+      LOGGING_LEVEL_ROOT: INFO
+    networks:
+      - auth-net
+
+networks:
+  auth-net:
+    driver: bridge

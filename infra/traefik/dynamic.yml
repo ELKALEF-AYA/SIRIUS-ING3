@@ -1,48 +1,57 @@
 http:
   routers:
-    # Backend Spring Boot
-    backend-router:
-      rule: "PathPrefix(`/app/api`)"
-      service: backend
-      entryPoints:
-        - web
-      middlewares:
-        - strip-app
-
-    # Frontend : route /front -> service frontend (on enlève /front avant d'envoyer à nginx)
     frontend-router:
-      rule: "PathPrefix(`/front`)"
+      rule: "PathPrefix(`/`)"
       service: frontend
-      middlewares:
-        - strip-front
+      priority: 1
       entryPoints:
         - web
 
-    # Frontend : les assets générés par Vite ( /assets/... )
-    frontend-assets:
-      rule: "PathPrefix(`/assets`)"
-      service: frontend
+    bff-router:
+      rule: "PathPrefix(`/api`)"
+      service: bff
+      priority: 10
+      middlewares:
+        - strip-api
+      entryPoints:
+        - web
+
+    chat-ws-router:
+      rule: "PathPrefix(`/ws`)"
+      service: bff
+      priority: 10
       entryPoints:
         - web
 
   middlewares:
-    strip-front:
+    strip-api:
       stripPrefix:
         prefixes:
-          - "/front"
+          - "/api"
 
-    strip-app:
-      stripPrefix:
-        prefixes:
-          - "/app"
+    add-cors:
+      headers:
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "Authorization"
+          - "Content-Type"
+        accessControlAllowOriginList:
+          - "http://172.31.252.169"
+        accessControlMaxAge: 100
+        addVaryHeader: true
 
   services:
-    backend:
-      loadBalancer:
-        servers:
-          - url: "http://172.31.253.250:8081"  # backend Spring Boot
-
     frontend:
       loadBalancer:
         servers:
-          - url: "http://frontend:80"          # conteneur nginx du front
+          - url: "http://frontend:80"
+
+    bff:
+      loadBalancer:
+        servers:
+          - url: "http://bff-service:8080"

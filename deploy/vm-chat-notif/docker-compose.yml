@@ -1,0 +1,49 @@
+services:
+
+  chat-service:
+    build:
+      context: ../../chat
+      dockerfile: Dockerfile
+    image: sirius/chat-service:latest
+    container_name: chat-service
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      SERVER_PORT: 8085
+      SPRING_DATASOURCE_URL: jdbc:postgresql://172.31.249.236:5432/jsa_db
+      SPRING_DATASOURCE_USERNAME: jsa
+      SPRING_DATASOURCE_PASSWORD: aya
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      APP_JWT_SECRET: ${JWT_SECRET}
+      LOGGING_LEVEL_ROOT: INFO
+    networks:
+      - chatnotif-net
+
+  notification-service:
+    build:
+      context: ../..
+      dockerfile: notification/Dockerfile
+    image: sirius/notification-service:latest
+    container_name: notification-service
+    restart: unless-stopped
+    ports:
+      - "8083:8084"
+    environment:
+      SERVER_PORT: 8084
+      SPRING_DATASOURCE_URL: jdbc:postgresql://172.31.249.236:5432/jsa_db
+      SPRING_DATASOURCE_USERNAME: jsa
+      SPRING_DATASOURCE_PASSWORD: aya
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.249.91:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: notification-group
+      SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET: earliest
+      APP_JWT_SECRET: ${JWT_SECRET}
+      LOGGING_LEVEL_ROOT: INFO
+    networks:
+      - chatnotif-net
+
+networks:
+  chatnotif-net:
+    driver: bridge
