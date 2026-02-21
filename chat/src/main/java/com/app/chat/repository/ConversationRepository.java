@@ -39,4 +39,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
         LIMIT 1
     """, nativeQuery = true)
     String findUserNameById(@Param("userId") Long userId);
+
+    @Query(value = "SELECT tenant_id FROM users WHERE id = :userId LIMIT 1", nativeQuery = true)
+    Long findTenantIdByUserId(@Param("userId") Long userId);
 }

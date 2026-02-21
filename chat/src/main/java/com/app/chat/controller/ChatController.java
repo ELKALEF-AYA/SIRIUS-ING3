@@ -45,10 +45,12 @@ public class ChatController {
             @RequestHeader("Authorization") String authHeader) {
 
         Long userId = extractUserId(authHeader);
-        if (userId == null || !userId.equals(AGENT_ID))
+        String role = extractRole(authHeader);
+        
+        if (userId == null || !"AGENT".equalsIgnoreCase(role))
             return ResponseEntity.status(401).build();
 
-        return ResponseEntity.ok(chatService.getAgentConversations(AGENT_ID));
+        return ResponseEntity.ok(chatService.getAgentConversations(userId));
     }
 
 
@@ -62,9 +64,11 @@ public class ChatController {
         Optional<Conversation> conv = conversationRepository.findByClientId(userId);
         if (conv.isEmpty()) return ResponseEntity.ok(List.of());
 
+        Long agentId = conv.get().getAgentId();
+
         ConversationDto dto = new ConversationDto();
         dto.setId(conv.get().getId());
-        dto.setOtherUserId(AGENT_ID);
+        dto.setOtherUserId(agentId);
         dto.setOtherUserName("Agent");
 
         Message lastMessage = chatRepository
@@ -90,9 +94,10 @@ public class ChatController {
             @RequestHeader("Authorization") String authHeader) {
 
         Long userId = extractUserId(authHeader);
+        String role = extractRole(authHeader);
         if (userId == null) return ResponseEntity.status(401).build();
 
-        return ResponseEntity.ok(chatService.getMessages(conversationId, userId));
+        return ResponseEntity.ok(chatService.getMessages(conversationId, userId, role));
     }
 
 
@@ -102,22 +107,30 @@ public class ChatController {
             @RequestBody Map<String, Long> body) {
 
         Long userId = extractUserId(authHeader);
+        String role = extractRole(authHeader);
+        
         if (userId == null) return ResponseEntity.status(401).build();
 
         Long clientId = body.get("clientId");
         if (clientId == null) return ResponseEntity.badRequest().build();
 
-        if (!userId.equals(AGENT_ID) && !userId.equals(clientId))
+        boolean isAgent = "AGENT".equalsIgnoreCase(role);
+
+        if (!isAgent && !userId.equals(clientId))
             return ResponseEntity.status(403).build();
 
-        ConversationDto dto = chatService.startConversation(clientId, AGENT_ID);
+        // If the agent is calling, use their actual userId as agentId
+        // If a client is calling, use the system's default AGENT_ID
+        Long agentId = isAgent ? userId : AGENT_ID;
+
+        ConversationDto dto = chatService.startConversation(clientId, agentId, role);
 
         messagingTemplate.convertAndSend(
                 "/topic/user/" + clientId,
                 Map.of("type", "NEW_CONVERSATION", "conversationId", dto.getId())
         );
         messagingTemplate.convertAndSend(
-                "/topic/user/" + AGENT_ID,
+                "/topic/user/" + agentId,
                 Map.of("type", "NEW_CONVERSATION", "conversationId", dto.getId())
         );
 
@@ -129,7 +142,9 @@ public class ChatController {
             @RequestHeader("Authorization") String authHeader) {
 
         Long userId = extractUserId(authHeader);
-        if (userId == null || !userId.equals(AGENT_ID))
+        String role = extractRole(authHeader);
+        
+        if (userId == null || !"AGENT".equalsIgnoreCase(role))
             return ResponseEntity.status(401).build();
 
         return ResponseEntity.ok(chatService.getAllClients());
@@ -146,13 +161,12 @@ public class ChatController {
 
         Conversation conv = chatService.getConversation(conversationId);
 
-        Long receiverId = senderType.equals("CLIENT")
+        Long receiverId = senderType.equalsIgnoreCase("CLIENT")
                 ? conv.getAgentId()
                 : conv.getClientId();
 
         Message message = chatService.sendMessage(
                 conversationId, senderId, receiverId, senderType, content);
-
 
         messagingTemplate.convertAndSend("/topic/user/" + receiverId, message);
 
@@ -163,5 +177,11 @@ public class ChatController {
         if (authHeader == null || !authHeader.startsWith("Bearer "))
             return null;
         return jwtService.extractUserId(authHeader.substring(7));
+    }
+
+    private String extractRole(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
+            return null;
+        return jwtService.extractRole(authHeader.substring(7));
     }
 }

@@ -28,13 +28,13 @@ public class ChatService {
         this.conversationRepository = conversationRepository;
     }
 
-    public Conversation getOrCreateConversation(Long clientId) {
+    public Conversation getOrCreateConversation(Long clientId, Long agentId) {
         Optional<Conversation> existing = conversationRepository.findByClientId(clientId);
         if (existing.isPresent()) return existing.get();
 
         Conversation conversation = new Conversation();
         conversation.setClientId(clientId);
-        conversation.setAgentId(AGENT_ID);
+        conversation.setAgentId(agentId);
         conversation.setCreatedAt(LocalDateTime.now());
         return conversationRepository.save(conversation);
     }
@@ -71,13 +71,21 @@ public class ChatService {
         }).collect(Collectors.toList());
     }
 
-    public ConversationDto startConversation(Long clientId, Long agentIdIgnored) {
-        Conversation conversation = getOrCreateConversation(clientId);
+    public ConversationDto startConversation(Long clientId, Long agentId, String callerRole) {
+        Conversation conversation = getOrCreateConversation(clientId, agentId);
 
         ConversationDto dto = new ConversationDto();
         dto.setId(conversation.getId());
-        dto.setOtherUserId(AGENT_ID);
-        dto.setOtherUserName("Agent");
+        
+        if ("AGENT".equalsIgnoreCase(callerRole)) {
+            dto.setOtherUserId(clientId);
+            String fullName = conversationRepository.findUserNameById(clientId);
+            dto.setOtherUserName(fullName);
+        } else {
+            dto.setOtherUserId(agentId);
+            dto.setOtherUserName("Agent");
+        }
+        
         dto.setUnreadCount(0);
 
         return dto;
@@ -106,19 +114,23 @@ public class ChatService {
     }
 
     @Transactional
-    public List<Message> getMessages(Long conversationId, Long userId) {
+    public List<Message> getMessages(Long conversationId, Long userId, String userRole) {
         Conversation conversation = getConversation(conversationId);
 
-        if (!conversation.getClientId().equals(userId)
-                && !conversation.getAgentId().equals(userId)) {
+        boolean isClient = conversation.getClientId() != null && conversation.getClientId().longValue() == userId.longValue();
+        boolean isAgentUser = "AGENT".equalsIgnoreCase(userRole);
+        boolean isParticipant = conversation.getAgentId() != null && conversation.getAgentId().longValue() == userId.longValue();
+
+        if (!isClient && !isAgentUser && !isParticipant) {
+            System.err.println("Accès refusé. conversationId=" + conversationId + ", userId=" + userId 
+                + ", role=" + userRole + ", clientId=" + conversation.getClientId() + ", agentId=" + conversation.getAgentId());
             throw new RuntimeException("Accès refusé");
         }
-
 
         List<Message> messages = chatRepository.findMessagesByConversation(conversation);
 
         messages.stream()
-                .filter(m -> m.getReceiverId().equals(userId) && !m.isRead())
+                .filter(m -> !m.getSenderId().equals(userId) && !m.isRead())
                 .forEach(m -> m.setRead(true));
 
         chatRepository.saveAll(messages);
