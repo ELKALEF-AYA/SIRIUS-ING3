@@ -1,10 +1,9 @@
 package com.app.chat.controller;
 
+import com.app.chat.dto.ClientDto;
 import com.app.chat.dto.ConversationDto;
 import com.app.chat.model.Conversation;
 import com.app.chat.model.Message;
-import com.app.chat.repository.ConversationRepository;
-import com.app.chat.repository.ChatRepository;
 import com.app.chat.service.ChatService;
 import com.app.chat.service.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -23,21 +21,15 @@ public class ChatController {
     private final ChatService chatService;
     private final JwtService jwtService;
     private final SimpMessagingTemplate messagingTemplate;
-    private final ConversationRepository conversationRepository;
-    private final ChatRepository chatRepository;
 
     private static final Long AGENT_ID = 1L;
 
     public ChatController(ChatService chatService,
                           JwtService jwtService,
-                          SimpMessagingTemplate messagingTemplate,
-                          ConversationRepository conversationRepository,
-                          ChatRepository chatRepository) {
+                          SimpMessagingTemplate messagingTemplate) {
         this.chatService = chatService;
         this.jwtService = jwtService;
         this.messagingTemplate = messagingTemplate;
-        this.conversationRepository = conversationRepository;
-        this.chatRepository = chatRepository;
     }
 
     @GetMapping("/conversations")
@@ -46,13 +38,12 @@ public class ChatController {
 
         Long userId = extractUserId(authHeader);
         String role = extractRole(authHeader);
-        
+
         if (userId == null || !"AGENT".equalsIgnoreCase(role))
             return ResponseEntity.status(401).build();
 
         return ResponseEntity.ok(chatService.getAgentConversations(userId));
     }
-
 
     @GetMapping("/my-conversations")
     public ResponseEntity<List<ConversationDto>> getMyConversations(
@@ -61,32 +52,8 @@ public class ChatController {
         Long userId = extractUserId(authHeader);
         if (userId == null) return ResponseEntity.status(401).build();
 
-        Optional<Conversation> conv = conversationRepository.findByClientId(userId);
-        if (conv.isEmpty()) return ResponseEntity.ok(List.of());
-
-        Long agentId = conv.get().getAgentId();
-
-        ConversationDto dto = new ConversationDto();
-        dto.setId(conv.get().getId());
-        dto.setOtherUserId(agentId);
-        dto.setOtherUserName("Agent");
-
-        Message lastMessage = chatRepository
-                .findTopByConversationOrderByTimestampDesc(conv.get());
-
-        if (lastMessage != null) {
-            dto.setLastMessage(lastMessage.getContent());
-            dto.setLastMessageTime(lastMessage.getTimestamp());
-            dto.setLastSenderType(lastMessage.getSenderType());
-        }
-
-        dto.setUnreadCount(
-                chatRepository.countByConversationAndIsReadFalseAndReceiverId(
-                        conv.get(), userId));
-
-        return ResponseEntity.ok(List.of(dto));
+        return ResponseEntity.ok(chatService.getClientConversation(userId));
     }
-
 
     @GetMapping("/conversations/{conversationId}/messages")
     public ResponseEntity<List<Message>> getMessages(
@@ -100,7 +67,6 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getMessages(conversationId, userId, role));
     }
 
-
     @PostMapping("/conversations/start")
     public ResponseEntity<ConversationDto> startConversation(
             @RequestHeader("Authorization") String authHeader,
@@ -108,7 +74,7 @@ public class ChatController {
 
         Long userId = extractUserId(authHeader);
         String role = extractRole(authHeader);
-        
+
         if (userId == null) return ResponseEntity.status(401).build();
 
         Long clientId = body.get("clientId");
@@ -119,8 +85,6 @@ public class ChatController {
         if (!isAgent && !userId.equals(clientId))
             return ResponseEntity.status(403).build();
 
-        // If the agent is calling, use their actual userId as agentId
-        // If a client is calling, use the system's default AGENT_ID
         Long agentId = isAgent ? userId : AGENT_ID;
 
         ConversationDto dto = chatService.startConversation(clientId, agentId, role);
@@ -138,18 +102,17 @@ public class ChatController {
     }
 
     @GetMapping("/clients")
-    public ResponseEntity<List<Map<String, Object>>> getAllClients(
+    public ResponseEntity<List<ClientDto>> getAllClients(
             @RequestHeader("Authorization") String authHeader) {
 
         Long userId = extractUserId(authHeader);
         String role = extractRole(authHeader);
-        
+
         if (userId == null || !"AGENT".equalsIgnoreCase(role))
             return ResponseEntity.status(401).build();
 
         return ResponseEntity.ok(chatService.getAllClients());
     }
-
 
     @MessageMapping("/chat.send")
     public void sendMessage(Map<String, Object> payload) {
@@ -169,7 +132,6 @@ public class ChatController {
                 conversationId, senderId, receiverId, senderType, content);
 
         messagingTemplate.convertAndSend("/topic/user/" + receiverId, message);
-
         messagingTemplate.convertAndSend("/topic/user/" + senderId, message);
     }
 
