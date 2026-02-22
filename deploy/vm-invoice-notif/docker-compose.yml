@@ -1,22 +1,27 @@
 services:
 
-  chat-service:
-    image: sirius/chat-service:latest
-    container_name: chat-service
+  rent-receipt-service:
+    image: sirius/rent-receipt-service:latest
+    container_name: rent-receipt-service
     restart: unless-stopped
     ports:
-      - "8085:8085"
+      - "8084:8084"
     environment:
-      SERVER_PORT: 8085
+      SERVER_PORT: 8084
       SPRING_DATASOURCE_URL: jdbc:postgresql://172.31.249.236:5432/jsa_db
       SPRING_DATASOURCE_USERNAME: jsa
       SPRING_DATASOURCE_PASSWORD: aya
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.249.91:9092
+      MINIO_ENDPOINT: http://172.31.250.54:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: invoices-pdf
       APP_JWT_SECRET: ${JWT_SECRET}
       LOGGING_LEVEL_ROOT: INFO
     networks:
-      - chatnotif-net
+      - invoice-notif-net
 
   notification-service:
     image: sirius/notification-service:latest
@@ -37,8 +42,8 @@ services:
       APP_JWT_SECRET: ${JWT_SECRET}
       LOGGING_LEVEL_ROOT: INFO
     networks:
-      - chatnotif-net
+      - invoice-notif-net
 
 networks:
-  chatnotif-net:
+  invoice-notif-net:
     driver: bridge

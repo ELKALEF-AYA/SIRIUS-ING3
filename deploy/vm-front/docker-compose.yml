@@ -8,15 +8,12 @@ services:
       - "80:80"
       - "8888:8080"
     volumes:
-      - ../../infra/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ../../infra/traefik/dynamic.yml:/etc/traefik/dynamic/dynamic.yml:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic.yml:/etc/traefik/dynamic/dynamic.yml:ro
     networks:
       - webnet
 
   frontend:
-    build:
-      context: ../../frontend
-      dockerfile: Dockerfile
     image: sirius/frontend:latest
     container_name: frontend
     restart: unless-stopped
@@ -24,9 +21,6 @@ services:
       - webnet
 
   bff-service:
-    build:
-      context: ../..
-      dockerfile: backend-for-frontend/Dockerfile
     image: sirius/bff-service:latest
     container_name: bff-service
     restart: unless-stopped

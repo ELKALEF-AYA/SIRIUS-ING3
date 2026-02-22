@@ -6,8 +6,8 @@ import MessageInput from './MessageInput';
 import ConversationList from './ConversationList';
 import './ChatInterface.css';
 
-const API_BASE_URL = 'http://localhost:8080/api/chat';
-const WS_URL = 'http://localhost:8083/ws';
+const API_BASE_URL = '/api/chat';
+const WS_URL = `${window.location.protocol}//${window.location.hostname}/ws`;
 
 export default function ChatInterface({ userType, userId }) {
 

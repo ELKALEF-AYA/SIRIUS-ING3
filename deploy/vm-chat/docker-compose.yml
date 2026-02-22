@@ -1,12 +1,13 @@
 services:
 
-  auth-service:
-    image: sirius/auth-service:latest
-    container_name: auth-service
+  chat-service:
+    image: sirius/chat-service:latest
+    container_name: chat-service
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "8085:8085"
     environment:
+      SERVER_PORT: 8085
       SPRING_DATASOURCE_URL: jdbc:postgresql://172.31.249.236:5432/jsa_db
       SPRING_DATASOURCE_USERNAME: jsa
       SPRING_DATASOURCE_PASSWORD: aya
@@ -15,8 +16,8 @@ services:
       APP_JWT_SECRET: ${JWT_SECRET}
       LOGGING_LEVEL_ROOT: INFO
     networks:
-      - auth-net
+      - chat-net
 
 networks:
-  auth-net:
+  chat-net:
     driver: bridge

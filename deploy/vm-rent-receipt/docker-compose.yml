@@ -1,9 +1,6 @@
 services:
 
   rent-receipt-service:
-    build:
-      context: ../..
-      dockerfile: rent-receipt/Dockerfile
     image: sirius/rent-receipt-service:latest
     container_name: rent-receipt-service
     restart: unless-stopped
