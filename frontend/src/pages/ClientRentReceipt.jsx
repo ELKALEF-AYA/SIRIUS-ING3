@@ -39,16 +39,22 @@ export default function ClientRentReceipt() {
   const [successId, setSuccessId] = useState(null);
   const location = useLocation();
 
+  const locataireId = localStorage.getItem("tenantId");
 
+  const fetchQuittances = () => {
+   api
+    .get(`/rent-receipt/client/${locataireId}`)
+    .then(res => setQuittances(res.data))
+    .catch(() => setError(true));
+};
   useEffect(() => {
-    const locataireId = localStorage.getItem("tenantId");
+    fetchQuittances();
+    const interval = setInterval(() => {
+      fetchQuittances();
+    }, 2000);
 
-    api
-      .get(`/rent-receipt/client/${locataireId}`)
-      .then(res => setQuittances(res.data))
-      .catch(() => setError(true));
+    return () => clearInterval(interval); // nettoyage
   }, []);
-
   useEffect(() => {
       const params = new URLSearchParams(location.search);
       const receiptId = params.get("receiptId");
