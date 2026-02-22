@@ -47,10 +47,10 @@ app:
 
 
 minio:
-  url: https://172.31.250.54:9000
-  access-key: admin
-  secret-key: admin123
-  bucket: quittances
+  url: ${MINIO_ENDPOINT:http://172.31.250.54:9000}
+  access-key: ${MINIO_ACCESS_KEY:admin}
+  secret-key: ${MINIO_SECRET_KEY:admin123}
+  bucket: ${MINIO_BUCKET:rent-receipts}
 
 
 logging:

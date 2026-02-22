@@ -1,0 +1,39 @@
+http:
+  routers:
+    bff-router:
+      entryPoints:
+        - web
+      rule: "PathPrefix(`/api`)"
+      service: bff-service
+      priority: 10
+
+    ws-router:
+      entryPoints:
+        - web
+      rule: "PathPrefix(`/ws`)"
+      service: chat-ws-service
+      priority: 20
+
+    frontend-router:
+      entryPoints:
+        - web
+      rule: "PathPrefix(`/`)"
+      service: frontend-service
+      priority: 1
+
+  services:
+    bff-service:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://bff-service:8080"
+
+    chat-ws-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.31.249.138:8085"
+
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:80"

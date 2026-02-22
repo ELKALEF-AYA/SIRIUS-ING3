@@ -6,10 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.*;
 
 import java.util.Map;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/chat")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class ChatProxyController {
 
     private final RestTemplate restTemplate;
@@ -33,33 +34,65 @@ public class ChatProxyController {
         return headers;
     }
 
+    private ResponseEntity<?> clean(ResponseEntity<?> upstream) {
+        return ResponseEntity
+                .status(upstream.getStatusCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(upstream.getBody());
+    }
+
     @GetMapping("/conversations")
-    public ResponseEntity<?> getConversations(@RequestHeader("Authorization") String auth) {
-        HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
-        return restTemplate.exchange(chatBaseUrl + "/api/chat/conversations", HttpMethod.GET, entity, Object.class);
+    public ResponseEntity<?> getConversations(@RequestHeader(value = "Authorization", required = false) String auth) {
+        try {
+            HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
+            return clean(restTemplate.exchange(chatBaseUrl + "/api/chat/conversations", HttpMethod.GET, entity, Object.class));
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Collections.singletonMap("error", "Chat service unavailable"));
+        }
     }
 
     @GetMapping("/my-conversations")
-    public ResponseEntity<?> getMyConversations(@RequestHeader("Authorization") String auth) {
-        HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
-        return restTemplate.exchange(chatBaseUrl + "/api/chat/my-conversations", HttpMethod.GET, entity, Object.class);
+    public ResponseEntity<?> getMyConversations(@RequestHeader(value = "Authorization", required = false) String auth) {
+        try {
+            HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
+            return clean(restTemplate.exchange(chatBaseUrl + "/api/chat/my-conversations", HttpMethod.GET, entity, Object.class));
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Collections.singletonMap("error", "Chat service unavailable"));
+        }
     }
 
     @GetMapping("/conversations/{id}/messages")
-    public ResponseEntity<?> getMessages(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) {
-        HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
-        return restTemplate.exchange(chatBaseUrl + "/api/chat/conversations/" + id + "/messages", HttpMethod.GET, entity, Object.class);
+    public ResponseEntity<?> getMessages(@PathVariable("id") Long id, @RequestHeader(value = "Authorization", required = false) String auth) {
+        try {
+            HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
+            return clean(restTemplate.exchange(chatBaseUrl + "/api/chat/conversations/" + id + "/messages", HttpMethod.GET, entity, Object.class));
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Collections.singletonMap("error", "Chat service unavailable"));
+        }
     }
 
     @PostMapping("/conversations/start")
-    public ResponseEntity<?> startConversation(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Long> body) {
-        HttpEntity<?> entity = new HttpEntity<>(body, forwardAuth(auth));
-        return restTemplate.exchange(chatBaseUrl + "/api/chat/conversations/start", HttpMethod.POST, entity, Object.class);
+    public ResponseEntity<?> startConversation(@RequestHeader(value = "Authorization", required = false) String auth, @RequestBody Map<String, Long> body) {
+        try {
+            HttpEntity<?> entity = new HttpEntity<>(body, forwardAuth(auth));
+            return clean(restTemplate.exchange(chatBaseUrl + "/api/chat/conversations/start", HttpMethod.POST, entity, Object.class));
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Collections.singletonMap("error", "Chat service unavailable"));
+        }
     }
 
     @GetMapping("/clients")
-    public ResponseEntity<?> getClients(@RequestHeader("Authorization") String auth) {
-        HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
-        return restTemplate.exchange(chatBaseUrl + "/api/chat/clients", HttpMethod.GET, entity, Object.class);
+    public ResponseEntity<?> getClients(@RequestHeader(value = "Authorization", required = false) String auth) {
+        try {
+            HttpEntity<?> entity = new HttpEntity<>(forwardAuth(auth));
+            return clean(restTemplate.exchange(chatBaseUrl + "/api/chat/clients", HttpMethod.GET, entity, Object.class));
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Collections.singletonMap("error", "Chat service unavailable"));
+        }
     }
 }
