@@ -1,57 +1,39 @@
 http:
   routers:
-    frontend-router:
-      rule: "PathPrefix(`/`)"
-      service: frontend
-      priority: 1
-      entryPoints:
-        - web
-
     bff-router:
-      rule: "PathPrefix(`/api`)"
-      service: bff
-      priority: 10
-      middlewares:
-        - strip-api
       entryPoints:
         - web
+      rule: "PathPrefix(`/api/`)"
+      service: bff-service
+      priority: 100
 
-    chat-ws-router:
+    ws-router:
+      entryPoints:
+        - web
       rule: "PathPrefix(`/ws`)"
-      service: bff
-      priority: 10
+      service: chat-ws-service
+      priority: 90
+
+    frontend-router:
       entryPoints:
         - web
-
-  middlewares:
-    strip-api:
-      stripPrefix:
-        prefixes:
-          - "/api"
-
-    add-cors:
-      headers:
-        accessControlAllowMethods:
-          - "GET"
-          - "POST"
-          - "PUT"
-          - "DELETE"
-          - "OPTIONS"
-        accessControlAllowHeaders:
-          - "Authorization"
-          - "Content-Type"
-        accessControlAllowOriginList:
-          - "http://172.31.252.169"
-        accessControlMaxAge: 100
-        addVaryHeader: true
+      rule: "PathPrefix(`/`)"
+      service: frontend-service
+      priority: 1
 
   services:
-    frontend:
+    bff-service:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://bff-service:8080"
+
+    chat-ws-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.31.249.138:8085"
+
+    frontend-service:
       loadBalancer:
         servers:
           - url: "http://frontend:80"
-
-    bff:
-      loadBalancer:
-        servers:
-          - url: "http://bff-service:8080"
