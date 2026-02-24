@@ -59,7 +59,21 @@ export default function Login() {
 
                 {err && <p style={{ color: "crimson" }}>{err}</p>}
 
-                <button disabled={loading} style={{ width: "100%", padding: 10 }}>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                        width: "100%",
+                        padding: 12,
+                        border: "none",
+                        borderRadius: 10,
+                        background: "#2563eb",
+                        color: "white",
+                        fontWeight: 600,
+                        cursor: loading ? "not-allowed" : "pointer",
+                        opacity: loading ? 0.75 : 1,
+                    }}
+                >
                     {loading ? "Connexion..." : "Se connecter"}
                 </button>
             </form>

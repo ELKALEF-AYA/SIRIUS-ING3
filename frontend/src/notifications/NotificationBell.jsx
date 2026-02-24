@@ -32,8 +32,12 @@ export default function NotificationBell() {
         return () => document.removeEventListener("mousedown", onDocClick);
     }, []);
 
-    function onClickNotif(n) {
-        if (!n.isRead) markRead(n.id);
+    async function onClickNotif(n) {
+        try {
+            if (!n.isRead) await markRead(n.id);
+        } catch (e) {
+            console.log("markRead failed", e);
+        }
 
         if (n.link) {
             const sep = n.link.includes("?") ? "&" : "?";

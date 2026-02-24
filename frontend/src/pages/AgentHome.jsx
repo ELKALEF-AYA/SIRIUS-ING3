@@ -7,7 +7,9 @@ import AgentRentReceipt from "./AgentRentReceipt";
 export default function AgentHome() {
     const userId = localStorage.getItem("userId") || "1";
     const email = localStorage.getItem("email") || "Agent";
-
+    const firstName = localStorage.getItem("firstName") || "";
+    const lastName = localStorage.getItem("lastName") || "";
+    const fullName = `${firstName} ${lastName}`.trim();
     const [tab, setTab] = useState("rent");
 
     return (
@@ -22,6 +24,7 @@ export default function AgentHome() {
             >
                 <div>
                     <h2 style={{ margin: 0 }}>Agent Dashboard</h2>
+                    <p style={{ margin: "6px 0 0" }}>{fullName}</p>
                 </div>
                 <LogoutButton />
             </div>
