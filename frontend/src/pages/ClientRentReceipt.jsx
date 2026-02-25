@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { api } from "../api/api";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 
 const PdfIcon = () => (
   <svg
@@ -38,21 +38,30 @@ export default function ClientRentReceipt() {
   const [loadingId, setLoadingId] = useState(null);
   const [successId, setSuccessId] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const lastHighlightedRef = useRef(null);
 
+  const locataireId = localStorage.getItem("tenantId");
 
+  const fetchQuittances = () => {
+   api
+    .get(`/rent-receipt/client/${locataireId}`)
+    .then(res => setQuittances(res.data))
+    .catch(() => setError(true));
+};
   useEffect(() => {
-    const locataireId = localStorage.getItem("tenantId");
+    fetchQuittances();
+    const interval = setInterval(() => {
+      fetchQuittances();
+    }, 2000);
 
-    api
-      .get(`/rent-receipt/client/${locataireId}`)
-      .then(res => setQuittances(res.data))
-      .catch(() => setError(true));
+    return () => clearInterval(interval); // nettoyage
   }, []);
-
   useEffect(() => {
       const params = new URLSearchParams(location.search);
       const receiptId = params.get("receiptId");
       if (!receiptId) return;
+      if (lastHighlightedRef.current === receiptId) return;
 
       const el = document.getElementById(`receipt-${receiptId}`);
       if (!el) return;
@@ -64,7 +73,7 @@ export default function ClientRentReceipt() {
       el.classList.add("receipt-highlight");
 
       setTimeout(() => el.classList.remove("receipt-highlight"), 2000);
-      window.history.replaceState({}, "", "/client");
+      navigate("/client", { replace: true });
   }, [location.search, quittances]);
 
   const formatPeriode = (periode) => {

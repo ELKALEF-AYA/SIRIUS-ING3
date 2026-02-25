@@ -1,20 +1,16 @@
-# ============================================================
-# Dockerfile – rent-receipt service
-# Context: project ROOT (SIRIUS-ING3/)
-# Build:  docker build -f rent-receipt/Dockerfile -t rent-receipt-service .
-# ============================================================
-
-# ---------- Stage 1 : Build ----------
 FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /workspace
 
-# Copy the parent POM + the shared messaging module + this service
-COPY pom.xml                ./pom.xml
-COPY messaging/pom.xml      ./messaging/pom.xml
-COPY messaging/src          ./messaging/src
-COPY rent-receipt/pom.xml   ./rent-receipt/pom.xml
-COPY rent-receipt/src       ./rent-receipt/src
+COPY pom.xml                         ./pom.xml
+COPY authentification/pom.xml        ./authentification/pom.xml
+COPY notification/pom.xml            ./notification/pom.xml
+COPY backend-for-frontend/pom.xml    ./backend-for-frontend/pom.xml
+COPY rent-receipt/pom.xml            ./rent-receipt/pom.xml
+COPY messaging/pom.xml               ./messaging/pom.xml
+
+COPY messaging/src                   ./messaging/src
+COPY rent-receipt/src                ./rent-receipt/src
 
 RUN apk add --no-cache maven && \
     mvn -pl messaging,rent-receipt -am \
@@ -22,7 +18,6 @@ RUN apk add --no-cache maven && \
       --no-transfer-progress \
       package
 
-# ---------- Stage 2 : Runtime ----------
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app

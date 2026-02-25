@@ -23,11 +23,11 @@ public class UserAuthRepository {
             u.tenant_id,
             CASE
               WHEN u.role = 'CLIENT' THEN l.prenom
-              ELSE ''
+              ELSE COALESCE(u.first_name, '')
             END AS first_name,
             CASE
               WHEN u.role = 'CLIENT' THEN l.nom
-              ELSE ''
+              ELSE COALESCE(u.last_name, '')
             END AS last_name
           FROM users u
           LEFT JOIN locataires l ON l.id = u.tenant_id
@@ -43,7 +43,7 @@ public class UserAuthRepository {
                         rs.getLong("id"),
                         rs.getString("email"),
                         rs.getString("role"),
-                        rs.getLong("tenant_id"),
+                        rs.getObject("tenant_id", Long.class),
                         rs.getString("first_name"),
                         rs.getString("last_name")
                 ),

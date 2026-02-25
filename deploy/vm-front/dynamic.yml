@@ -3,16 +3,16 @@ http:
     bff-router:
       entryPoints:
         - web
-      rule: "PathPrefix(`/api/`)"
+      rule: "PathPrefix(`/api`)"
       service: bff-service
-      priority: 100
+      priority: 10
 
     ws-router:
       entryPoints:
         - web
       rule: "PathPrefix(`/ws`)"
       service: chat-ws-service
-      priority: 90
+      priority: 20
 
     frontend-router:
       entryPoints:
