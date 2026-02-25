@@ -1,5 +1,8 @@
 pipeline {
     agent any
+     tools {
+        jdk 'Java21'   
+    }
 
     environment {
         GITHUB_REPO     = 'https://github.com/ELKALEF-AYA/SIRIUS-ING3.git'
