@@ -48,42 +48,36 @@ pipeline {
                 stage('Image Auth') {
                     steps {
                         echo 'Construction image authentification...'
-                        // contexte racine car Dockerfile reference authentification/pom.xml
                         sh "docker build -t ${IMG_AUTH}:latest -f authentification/Dockerfile ."
                     }
                 }
                 stage('Image Chat') {
                     steps {
                         echo 'Construction image chat...'
-                        // contexte chat/ (standalone Spring Boot)
                         sh "docker build -t ${IMG_CHAT}:latest chat/"
                     }
                 }
                 stage('Image Notification') {
                     steps {
                         echo 'Construction image notification...'
-                        // contexte racine car Dockerfile reference notification/pom.xml
                         sh "docker build -t ${IMG_NOTIF}:latest -f notification/Dockerfile ."
                     }
                 }
                 stage('Image Rent-Receipt') {
                     steps {
                         echo 'Construction image rent-receipt...'
-                        // contexte racine car Dockerfile reference rent-receipt/pom.xml
                         sh "docker build -t ${IMG_INVOICE}:latest -f rent-receipt/Dockerfile ."
                     }
                 }
                 stage('Image BFF') {
                     steps {
                         echo 'Construction image backend-for-frontend...'
-                        // contexte racine car Dockerfile reference backend-for-frontend/pom.xml
                         sh "docker build -t ${IMG_BFF}:latest -f backend-for-frontend/Dockerfile ."
                     }
                 }
                 stage('Image Frontend') {
                     steps {
                         echo 'Construction image frontend...'
-                        // contexte frontend/ (Vite + React standalone)
                         sh "docker build -t ${IMG_FRONT}:latest frontend/"
                     }
                 }
@@ -128,7 +122,6 @@ pipeline {
                         echo 'Redemarrage authentification sur vm-auth...'
                         sh """
                             ssh ${SSH_USER}@${VM_AUTH} '
-                                cd ~/jsahome &&
                                 docker compose stop authentification &&
                                 docker compose up -d authentification
                             '
@@ -140,7 +133,6 @@ pipeline {
                         echo 'Redemarrage chat et notification sur vm-chat-notif...'
                         sh """
                             ssh ${SSH_USER}@${VM_CHAT_NOTIF} '
-                                cd ~/jsahome &&
                                 docker compose stop chat notification &&
                                 docker compose up -d chat notification
                             '
@@ -152,7 +144,6 @@ pipeline {
                         echo 'Redemarrage rent-receipt sur vm-invoice...'
                         sh """
                             ssh ${SSH_USER}@${VM_INVOICE} '
-                                cd ~/jsahome &&
                                 docker compose stop rent-receipt &&
                                 docker compose up -d rent-receipt
                             '
@@ -164,7 +155,6 @@ pipeline {
                         echo 'Redemarrage frontend et bff sur vm-front...'
                         sh """
                             ssh ${SSH_USER}@${VM_FRONT} '
-                                cd ~/jsahome &&
                                 docker compose stop frontend backend-for-frontend &&
                                 docker compose up -d frontend backend-for-frontend traefik
                             '
