@@ -48,37 +48,37 @@ pipeline {
                 stage('Image Auth') {
                     steps {
                         echo 'Construction image authentification...'
-                        sh "docker build -t ${IMG_AUTH}:latest authentification/"
+                        sh "docker build -t ${IMG_AUTH}:latest -f authentification/Dockerfile ."
                     }
                 }
                 stage('Image Chat') {
                     steps {
                         echo 'Construction image chat...'
-                        sh "docker build -t ${IMG_CHAT}:latest chat/"
+                        sh "docker build -t ${IMG_CHAT}:latest -f chat/Dockerfile ."
                     }
                 }
                 stage('Image Notification') {
                     steps {
                         echo 'Construction image notification...'
-                        sh "docker build -t ${IMG_NOTIF}:latest notification/"
+                        sh "docker build -t ${IMG_NOTIF}:latest -f notification/Dockerfile ."
                     }
                 }
                 stage('Image Rent-Receipt') {
                     steps {
                         echo 'Construction image rent-receipt...'
-                        sh "docker build -t ${IMG_INVOICE}:latest rent-receipt/"
+                        sh "docker build -t ${IMG_INVOICE}:latest -f rent-receipt/Dockerfile ."
                     }
                 }
                 stage('Image BFF') {
                     steps {
                         echo 'Construction image backend-for-frontend...'
-                        sh "docker build -t ${IMG_BFF}:latest backend-for-frontend/"
+                        sh "docker build -t ${IMG_BFF}:latest -f backend-for-frontend/Dockerfile ."
                     }
                 }
                 stage('Image Frontend') {
                     steps {
                         echo 'Construction image frontend...'
-                        sh "docker build -t ${IMG_FRONT}:latest frontend/"
+                        sh "docker build -t ${IMG_FRONT}:latest -f frontend/Dockerfile ."
                     }
                 }
             }
