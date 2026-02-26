@@ -16,12 +16,12 @@ pipeline {
 
         SSH_USER        = 'jsa'
 
-        IMG_AUTH        = 'jsahome/authentification'
-        IMG_CHAT        = 'jsahome/chat'
-        IMG_NOTIF       = 'jsahome/notification'
-        IMG_INVOICE     = 'jsahome/rent-receipt'
-        IMG_BFF         = 'jsahome/backend-for-frontend'
-        IMG_FRONT       = 'jsahome/frontend'
+        IMG_AUTH        = 'sirius/auth-service'
+        IMG_CHAT        = 'sirius/chat-service'
+        IMG_NOTIF       = 'sirius/notification-service'
+        IMG_INVOICE     = 'sirius/rent-receipt-service'
+        IMG_BFF         = 'sirius/bff-service'
+        IMG_FRONT       = 'sirius/frontend'
     }
 
     stages {
@@ -47,31 +47,31 @@ pipeline {
             parallel {
                 stage('Image Auth') {
                     steps {
-                        echo 'Construction image authentification...'
+                        echo 'Construction image auth-service...'
                         sh "docker build -t ${IMG_AUTH}:latest -f authentification/Dockerfile ."
                     }
                 }
                 stage('Image Chat') {
                     steps {
-                        echo 'Construction image chat...'
+                        echo 'Construction image chat-service...'
                         sh "docker build -t ${IMG_CHAT}:latest chat/"
                     }
                 }
                 stage('Image Notification') {
                     steps {
-                        echo 'Construction image notification...'
+                        echo 'Construction image notification-service...'
                         sh "docker build -t ${IMG_NOTIF}:latest -f notification/Dockerfile ."
                     }
                 }
                 stage('Image Rent-Receipt') {
                     steps {
-                        echo 'Construction image rent-receipt...'
+                        echo 'Construction image rent-receipt-service...'
                         sh "docker build -t ${IMG_INVOICE}:latest -f rent-receipt/Dockerfile ."
                     }
                 }
                 stage('Image BFF') {
                     steps {
-                        echo 'Construction image backend-for-frontend...'
+                        echo 'Construction image bff-service...'
                         sh "docker build -t ${IMG_BFF}:latest -f backend-for-frontend/Dockerfile ."
                     }
                 }
@@ -88,26 +88,26 @@ pipeline {
             parallel {
                 stage('vm-auth') {
                     steps {
-                        echo 'Envoi image auth vers vm-auth...'
+                        echo 'Envoi image auth-service vers vm-auth...'
                         sh "docker save ${IMG_AUTH}:latest | ssh ${SSH_USER}@${VM_AUTH} 'docker load'"
                     }
                 }
                 stage('vm-chat-notif') {
                     steps {
                         echo 'Envoi images chat et notification vers vm-chat-notif...'
-                        sh "docker save ${IMG_CHAT}:latest  | ssh ${SSH_USER}@${VM_CHAT_NOTIF} 'docker load'"
+                        sh "docker save ${IMG_CHAT}:latest | ssh ${SSH_USER}@${VM_CHAT_NOTIF} 'docker load'"
                         sh "docker save ${IMG_NOTIF}:latest | ssh ${SSH_USER}@${VM_CHAT_NOTIF} 'docker load'"
                     }
                 }
                 stage('vm-invoice') {
                     steps {
-                        echo 'Envoi image rent-receipt vers vm-invoice...'
+                        echo 'Envoi image rent-receipt-service vers vm-invoice...'
                         sh "docker save ${IMG_INVOICE}:latest | ssh ${SSH_USER}@${VM_INVOICE} 'docker load'"
                     }
                 }
                 stage('vm-front') {
                     steps {
-                        echo 'Envoi images frontend et bff vers vm-front...'
+                        echo 'Envoi images frontend et bff-service vers vm-front...'
                         sh "docker save ${IMG_BFF}:latest   | ssh ${SSH_USER}@${VM_FRONT} 'docker load'"
                         sh "docker save ${IMG_FRONT}:latest | ssh ${SSH_USER}@${VM_FRONT} 'docker load'"
                     }
@@ -119,11 +119,11 @@ pipeline {
             parallel {
                 stage('Restart vm-auth') {
                     steps {
-                        echo 'Redemarrage authentification sur vm-auth...'
+                        echo 'Redemarrage auth-service sur vm-auth...'
                         sh """
                             ssh ${SSH_USER}@${VM_AUTH} '
-                                docker compose stop authentification &&
-                                docker compose up -d authentification
+                                docker compose stop auth-service &&
+                                docker compose up -d auth-service
                             '
                         """
                     }
@@ -133,30 +133,30 @@ pipeline {
                         echo 'Redemarrage chat et notification sur vm-chat-notif...'
                         sh """
                             ssh ${SSH_USER}@${VM_CHAT_NOTIF} '
-                                docker compose stop chat notification &&
-                                docker compose up -d chat notification
+                                docker compose stop chat-service notification-service &&
+                                docker compose up -d chat-service notification-service
                             '
                         """
                     }
                 }
                 stage('Restart vm-invoice') {
                     steps {
-                        echo 'Redemarrage rent-receipt sur vm-invoice...'
+                        echo 'Redemarrage rent-receipt-service sur vm-invoice...'
                         sh """
                             ssh ${SSH_USER}@${VM_INVOICE} '
-                                docker compose stop rent-receipt &&
-                                docker compose up -d rent-receipt
+                                docker compose stop rent-receipt-service &&
+                                docker compose up -d rent-receipt-service
                             '
                         """
                     }
                 }
                 stage('Restart vm-front') {
                     steps {
-                        echo 'Redemarrage frontend et bff sur vm-front...'
+                        echo 'Redemarrage frontend et bff-service sur vm-front...'
                         sh """
                             ssh ${SSH_USER}@${VM_FRONT} '
-                                docker compose stop frontend backend-for-frontend &&
-                                docker compose up -d frontend backend-for-frontend traefik
+                                docker compose stop frontend bff-service &&
+                                docker compose up -d frontend bff-service traefik
                             '
                         """
                     }
