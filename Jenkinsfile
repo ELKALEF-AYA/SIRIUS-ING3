@@ -48,37 +48,43 @@ pipeline {
                 stage('Image Auth') {
                     steps {
                         echo 'Construction image authentification...'
+                        // contexte racine car Dockerfile reference authentification/pom.xml
                         sh "docker build -t ${IMG_AUTH}:latest -f authentification/Dockerfile ."
                     }
                 }
                 stage('Image Chat') {
                     steps {
                         echo 'Construction image chat...'
-                        sh "docker build -t ${IMG_CHAT}:latest -f chat/Dockerfile ."
+                        // contexte chat/ (standalone Spring Boot)
+                        sh "docker build -t ${IMG_CHAT}:latest chat/"
                     }
                 }
                 stage('Image Notification') {
                     steps {
                         echo 'Construction image notification...'
+                        // contexte racine car Dockerfile reference notification/pom.xml
                         sh "docker build -t ${IMG_NOTIF}:latest -f notification/Dockerfile ."
                     }
                 }
                 stage('Image Rent-Receipt') {
                     steps {
                         echo 'Construction image rent-receipt...'
+                        // contexte racine car Dockerfile reference rent-receipt/pom.xml
                         sh "docker build -t ${IMG_INVOICE}:latest -f rent-receipt/Dockerfile ."
                     }
                 }
                 stage('Image BFF') {
                     steps {
                         echo 'Construction image backend-for-frontend...'
+                        // contexte racine car Dockerfile reference backend-for-frontend/pom.xml
                         sh "docker build -t ${IMG_BFF}:latest -f backend-for-frontend/Dockerfile ."
                     }
                 }
                 stage('Image Frontend') {
                     steps {
                         echo 'Construction image frontend...'
-                        sh "docker build -t ${IMG_FRONT}:latest -f frontend/Dockerfile ."
+                        // contexte frontend/ (Vite + React standalone)
+                        sh "docker build -t ${IMG_FRONT}:latest frontend/"
                     }
                 }
             }
@@ -174,7 +180,7 @@ pipeline {
             echo 'Deploiement JSAHome termine avec succes. Acces : http://172.31.252.169'
         }
         failure {
-            echo 'Pipeline echoue. Consulte les logs ci-dessus.'
+            echo 'Pipeline echoue.'
         }
     }
 }
